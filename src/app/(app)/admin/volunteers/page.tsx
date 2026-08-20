@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
 import { Card, PageHeader, Badge, EmptyState, Input } from "@/components/ui";
+import { unreadByUserForManager } from "@/lib/queries/threads";
 import { formatInTimeZone } from "date-fns-tz";
 import { TZ } from "@/lib/dates";
 
@@ -37,6 +38,7 @@ export default async function VolunteersPage({
     },
     orderBy: [{ isActive: "desc" }, { name: "asc" }],
   });
+  const unread = await unreadByUserForManager();
 
   return (
     <div>
@@ -62,6 +64,11 @@ export default async function VolunteersPage({
                     {u.role === "MANAGER" ? <Badge tone="red">Manager</Badge> : null}
                     {u.role === "BOARD" ? <Badge tone="blue">Board</Badge> : null}
                     {!u.isActive ? <Badge tone="amber">Deactivated</Badge> : null}
+                    {unread.get(u.id) ? (
+                      <Badge tone="red">
+                        💬 {unread.get(u.id)} new
+                      </Badge>
+                    ) : null}
                   </div>
                   <p className="text-xs text-ink-soft">
                     {u.email}

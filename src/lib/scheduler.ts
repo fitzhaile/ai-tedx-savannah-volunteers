@@ -3,13 +3,26 @@ import { addDays } from "date-fns";
 import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
 import { enqueueEmail, drainOutbox } from "@/lib/email/outbox";
+import { syncGmailThreads, type SyncResult } from "@/lib/email/imap-sync";
 import { dayKey, fmtDay, fmtShiftWhen } from "@/lib/dates";
+
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
 
 /**
  * Everything time-driven, in one idempotent pass:
  *  1. Queue shift reminders (3 days ahead, and day-of) — dedupe keys make it
  *     safe to run any number of times per day.
  *  2. Drain the email outbox within the daily budget.
+ *  3. Pull replies from Gmail into conversation threads (gmail mode only;
+ *     time-boxed so a hung IMAP session can never starve steps 1–2 on the
+ *     next run).
  * Called by /api/cron/tick (external pinger + Vercel cron) and by the
  * "Run scheduler now" button on the time-travel panel.
  */
@@ -18,6 +31,7 @@ export async function runScheduledWork(): Promise<{
   sent: number;
   failed: number;
   deferred: number;
+  imap: SyncResult;
 }> {
   const currentTime = await now();
   let remindersQueued = 0;
@@ -74,5 +88,14 @@ export async function runScheduledWork(): Promise<{
   }
 
   const drained = await drainOutbox();
-  return { remindersQueued, ...drained };
+
+  let imap: SyncResult = { ran: false, reason: "not attempted" };
+  try {
+    imap = await withTimeout(syncGmailThreads(), 30_000);
+  } catch (e) {
+    console.error("[imap-sync]", e);
+    imap = { ran: false, reason: e instanceof Error ? e.message : String(e) };
+  }
+
+  return { remindersQueued, ...drained, imap };
 }

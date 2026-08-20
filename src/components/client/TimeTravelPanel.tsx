@@ -2,13 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Input, Label, FieldHint } from "@/components/ui";
+import { Button, Card, Input, Label, FieldHint, Textarea } from "@/components/ui";
 import {
   setSimulatedNowAction,
   runSchedulerAction,
   clearReminderHistoryAction,
   loadDemoSeasonAction,
   resetForProductionAction,
+  simulateInboundEmailAction,
 } from "@/lib/actions/dev-actions";
 
 const PRESETS: { label: string; value: string; hint: string }[] = [
@@ -20,11 +21,21 @@ const PRESETS: { label: string; value: string; hint: string }[] = [
   { label: "May 15, 2027", value: "2027-05-15T07:00", hint: "Event morning 🎬" },
 ];
 
-export function TimeTravelPanel({ simulatedNow }: { simulatedNow: string | null }) {
+export function TimeTravelPanel({
+  simulatedNow,
+  members,
+}: {
+  simulatedNow: string | null;
+  members: { name: string; email: string }[];
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [custom, setCustom] = useState("");
   const [schedResult, setSchedResult] = useState<string | null>(null);
+  const [simFrom, setSimFrom] = useState("");
+  const [simBody, setSimBody] = useState("");
+  const [simReply, setSimReply] = useState(false);
+  const [simResult, setSimResult] = useState<string | null>(null);
 
   const jump = (value: string | null) =>
     startTransition(async () => {
@@ -89,7 +100,7 @@ export function TimeTravelPanel({ simulatedNow }: { simulatedNow: string | null 
               startTransition(async () => {
                 const r = await runSchedulerAction();
                 setSchedResult(
-                  `Queued ${r.remindersQueued} reminder${r.remindersQueued === 1 ? "" : "s"}, sent ${r.sent}, ${r.deferred} still queued${r.failed ? `, ${r.failed} failed` : ""}.`
+                  `Queued ${r.remindersQueued} reminder${r.remindersQueued === 1 ? "" : "s"}, sent ${r.sent}, ${r.deferred} still queued${r.failed ? `, ${r.failed} failed` : ""}${r.imap.ran ? `, Gmail checked (+${r.imap.ingested ?? 0} replies)` : ""}.`
                 );
                 router.refresh();
               })
@@ -100,6 +111,77 @@ export function TimeTravelPanel({ simulatedNow }: { simulatedNow: string | null 
           {schedResult ? <p className="text-sm font-semibold text-go">{schedResult}</p> : null}
         </div>
         <FieldHint>Check Admin → Messages afterwards to see what went out.</FieldHint>
+      </Card>
+
+      <Card>
+        <h2 className="mb-1 text-sm font-extrabold text-ink">Simulate an inbound email</h2>
+        <p className="mb-3 text-sm text-ink-soft">
+          Pretend a volunteer emailed you back — the message goes through the exact same
+          processing as real Gmail replies and lands in their conversation thread.
+        </p>
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="sim-from">From (a volunteer or board member&apos;s email)</Label>
+            <Input
+              id="sim-from"
+              list="member-emails"
+              placeholder="pick or type an email…"
+              value={simFrom}
+              onChange={(e) => setSimFrom(e.target.value)}
+            />
+            <datalist id="member-emails">
+              {members.map((m) => (
+                <option key={m.email} value={m.email}>
+                  {m.name}
+                </option>
+              ))}
+            </datalist>
+          </div>
+          <div>
+            <Label htmlFor="sim-body">Message</Label>
+            <Textarea
+              id="sim-body"
+              rows={3}
+              placeholder="Hi Fitz — count me in for Saturday!"
+              value={simBody}
+              onChange={(e) => setSimBody(e.target.value)}
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm text-ink-soft">
+            <input
+              type="checkbox"
+              checked={simReply}
+              onChange={(e) => setSimReply(e.target.checked)}
+            />
+            Send as a reply to their latest email (tests reply-matching, works even with a
+            different From address)
+          </label>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={pending || !simFrom.trim() || !simBody.trim()}
+              onClick={() =>
+                startTransition(async () => {
+                  const r = await simulateInboundEmailAction({
+                    fromEmail: simFrom,
+                    body: simBody,
+                    replyToLatest: simReply,
+                    toEmail: simReply ? simFrom : undefined,
+                  });
+                  setSimResult(r.detail);
+                  if (r.ok) setSimBody("");
+                  router.refresh();
+                })
+              }
+            >
+              Simulate email
+            </Button>
+            {simResult ? (
+              <p className="text-sm font-semibold text-ink-soft">{simResult}</p>
+            ) : null}
+          </div>
+        </div>
       </Card>
 
       <Card>

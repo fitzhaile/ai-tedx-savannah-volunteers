@@ -1,10 +1,13 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireManager } from "@/lib/auth";
+import { now } from "@/lib/clock";
 import { fromInputValue } from "@/lib/dates";
 import { runScheduledWork } from "@/lib/scheduler";
+import { ingestInboundEmail } from "@/lib/email/imap-sync";
 
 /** Time-travel test tools. All gated behind ENABLE_TIME_TRAVEL=true. */
 
@@ -32,6 +35,7 @@ export async function runSchedulerAction(): Promise<{
   sent: number;
   failed: number;
   deferred: number;
+  imap: { ran: boolean; ingested?: number };
 }> {
   await requireManager();
   assertEnabled();
@@ -58,6 +62,81 @@ export async function loadDemoSeasonAction(): Promise<string> {
   const counts = await seedDemoSeason(prisma, manager.email);
   revalidatePath("/", "layout");
   return `Demo season loaded: ${counts.users} people, ${counts.shifts} shifts, ${counts.signups} signups.`;
+}
+
+/**
+ * Feed a pretend email through the real ingestion path (the same code the
+ * IMAP sync uses), so conversation threads can be tested without Gmail.
+ */
+export async function simulateInboundEmailAction(input: {
+  fromEmail: string;
+  body: string;
+  subject?: string;
+  mailbox?: "inbox" | "sent";
+  toEmail?: string;
+  replyToLatest?: boolean;
+}): Promise<{ ok: boolean; detail: string }> {
+  await requireManager();
+  assertEnabled();
+
+  const fromEmail = input.fromEmail.trim().toLowerCase();
+  let inReplyTo: string | null = null;
+  if (input.replyToLatest) {
+    // Wire the simulated reply to a member's latest sent email, so the
+    // references-based correlation path gets exercised end to end.
+    const targetEmail = input.toEmail?.trim().toLowerCase() || fromEmail;
+    const target = await prisma.user.findFirst({ where: { email: targetEmail } });
+    if (!target) {
+      return {
+        ok: false,
+        detail: `No member found with email ${targetEmail} to reply on behalf of.`,
+      };
+    }
+    const latest = await prisma.emailLog.findFirst({
+      where: { status: "SENT", providerId: { not: null }, userId: target.id },
+      orderBy: { sentAt: "desc" },
+    });
+    if (!latest) {
+      return {
+        ok: false,
+        detail: `The app hasn't sent ${target.name} any email yet — send them a message first.`,
+      };
+    }
+    inReplyTo = latest.providerId;
+  }
+
+  const outcome = await ingestInboundEmail(
+    {
+      mailbox: input.mailbox ?? "inbox",
+      messageId: `<sim-${randomUUID()}@simulated.local>`,
+      inReplyTo,
+      references: [],
+      from: fromEmail,
+      to: input.toEmail ? [input.toEmail.trim().toLowerCase()] : [],
+      subject: input.subject?.trim() || "Simulated email",
+      text: input.body,
+      html: null,
+      date: null,
+      hasAppHeader: false,
+    },
+    { at: await now() }
+  );
+
+  revalidatePath("/", "layout");
+  if (outcome.ok) {
+    const user = await prisma.user.findUnique({ where: { id: outcome.userId } });
+    return { ok: true, detail: `Ingested into ${user?.name ?? "?"}'s conversation.` };
+  }
+  const reasons: Record<string, string> = {
+    self: "Skipped: that address belongs to you (the manager).",
+    "unknown-sender": inReplyTo
+      ? "Skipped: sender unknown and the reference didn't match."
+      : "Skipped: no volunteer or board member has that email (try 'reply to their latest email' to test reply matching).",
+    duplicate: "Skipped: an email with this ID was already ingested.",
+    "app-sent": "Skipped: that looks like an email the app itself sent.",
+    "no-member-recipient": "Skipped: no volunteer/board member among the recipients.",
+  };
+  return { ok: false, detail: reasons[outcome.skipped] ?? `Skipped: ${outcome.skipped}` };
 }
 
 /** The clean-slate reset before real volunteers start. Keeps only the manager. */

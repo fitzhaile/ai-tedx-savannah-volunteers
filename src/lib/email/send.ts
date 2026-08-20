@@ -45,6 +45,8 @@ export async function deliver(opts: {
         subject: opts.subject,
         html: opts.html,
         replyTo: opts.replyTo ?? undefined,
+        // Marks app-sent mail so the IMAP Sent-folder sync never re-ingests it.
+        headers: { "X-TEDx-App": "1" },
       });
       return { ok: true, providerId: info.messageId ?? "gmail" };
     } catch (e) {

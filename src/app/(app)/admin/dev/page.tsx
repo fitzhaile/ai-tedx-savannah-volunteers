@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { prisma } from "@/lib/db";
 import { getSettings, now } from "@/lib/clock";
 import { PageHeader } from "@/components/ui";
 import { TimeTravelPanel } from "@/components/client/TimeTravelPanel";
@@ -9,7 +10,15 @@ export const dynamic = "force-dynamic";
 
 export default async function DevPage() {
   if (process.env.ENABLE_TIME_TRAVEL !== "true") notFound();
-  const [settings, currentTime] = await Promise.all([getSettings(), now()]);
+  const [settings, currentTime, members] = await Promise.all([
+    getSettings(),
+    now(),
+    prisma.user.findMany({
+      where: { role: { not: "MANAGER" }, isActive: true },
+      select: { name: true, email: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   return (
     <div className="max-w-2xl">
@@ -23,6 +32,7 @@ export default async function DevPage() {
       />
       <TimeTravelPanel
         simulatedNow={settings.simulatedNow ? toInputValue(settings.simulatedNow) : null}
+        members={members}
       />
     </div>
   );

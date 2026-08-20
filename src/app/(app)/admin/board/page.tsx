@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
-import { Card, PageHeader, EmptyState } from "@/components/ui";
+import { Card, PageHeader, EmptyState, Badge } from "@/components/ui";
 import { AddBoardForm, BoardRowActions } from "@/components/client/BoardAdmin";
+import { unreadByUserForManager } from "@/lib/queries/threads";
 import { formatInTimeZone } from "date-fns-tz";
 import { TZ } from "@/lib/dates";
 
@@ -20,6 +21,7 @@ export default async function BoardAdminPage() {
     },
     orderBy: { name: "asc" },
   });
+  const unread = await unreadByUserForManager();
 
   return (
     <div className="max-w-3xl">
@@ -43,12 +45,15 @@ export default async function BoardAdminPage() {
           {members.map((m) => (
             <Card key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
               <div className="min-w-0">
-                <Link
-                  href={`/admin/volunteers/${m.id}`}
-                  className="text-sm font-bold text-ink hover:underline"
-                >
-                  {m.name}
-                </Link>
+                <span className="flex items-center gap-2">
+                  <Link
+                    href={`/admin/volunteers/${m.id}`}
+                    className="text-sm font-bold text-ink hover:underline"
+                  >
+                    {m.name}
+                  </Link>
+                  {unread.get(m.id) ? <Badge tone="red">💬 {unread.get(m.id)} new</Badge> : null}
+                </span>
                 <p className="text-xs text-ink-soft">
                   {m.email} · owns {m._count.ownedShifts} upcoming shift
                   {m._count.ownedShifts === 1 ? "" : "s"} ·{" "}
