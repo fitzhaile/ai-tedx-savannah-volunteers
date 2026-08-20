@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  /* TEDx palette */
+  --color-ted: #eb0028;
+  --color-ted-dark: #c2001f;
+  --color-ted-soft: #fdeef0;
+
+  --color-ink: #16161a;
+  --color-ink-soft: #57575e;
+  --color-ink-faint: #8b8b92;
+  --color-paper: #f7f6f3;
+  --color-card: #ffffff;
+  --color-line: #e7e5e0;
+
+  --color-go: #0e9f6e;
+  --color-go-soft: #def7ec;
+  --color-warn: #b45309;
+  --color-warn-soft: #fcf0d3;
+  --color-info: #1d4ed8;
+  --color-info-soft: #e3ecfd;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
