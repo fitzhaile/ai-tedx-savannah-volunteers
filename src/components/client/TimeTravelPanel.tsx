@@ -128,8 +128,11 @@ export function TimeTravelPanel({ simulatedNow }: { simulatedNow: string | null 
         <h2 className="mb-1 text-sm font-extrabold text-ink">Demo data</h2>
         <p className="mb-3 text-sm text-ink-soft">
           The demo season fills the app with 15 pretend volunteers, two board members, and a
-          full shift schedule. Their email addresses are variants of yours (like{" "}
-          <code className="rounded bg-line/60 px-1.5 py-0.5 font-mono text-xs">you+vol3@…</code>
+          full shift schedule. Volunteer addresses are plus-tagged variants of your work email
+          (like{" "}
+          <code className="rounded bg-line/60 px-1.5 py-0.5 font-mono text-xs">
+            fitz+v3-tessa-okafor@fitzhaile.com
+          </code>
           ), so everything the app &quot;sends them&quot; lands in your own inbox.
         </p>
         <div className="flex flex-wrap gap-2">

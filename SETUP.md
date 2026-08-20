@@ -56,9 +56,10 @@ database tables automatically** (the build runs `prisma migrate deploy`).
    creates itself on first sign-in.
 2. Go to **Admin → ⏱ Time travel → Load demo season**. That fills the app
    with 15 pretend volunteers (their addresses are plus-tagged versions of
-   yours, like `you+vol3@gmail.com`, so every email the app "sends them"
-   lands in *your* inbox), event shifts on May 13–15 2027, coaching sessions
-   in March–April, waitlists, and cancellations.
+   the manager's work email, like `fitz+v3-tessa-okafor@fitzhaile.com`, so
+   every email the app "sends them" lands in the manager's own inbox), event
+   shifts on May 13–15 2027, coaching sessions in March–April, waitlists,
+   and cancellations.
 
 When you're done testing: **Admin → ⏱ Time travel → Reset for real
 volunteers** wipes all demo data (keeping your account), then set
