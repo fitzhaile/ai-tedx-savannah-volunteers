@@ -7,6 +7,8 @@ import {
   setSimulatedNowAction,
   runSchedulerAction,
   clearReminderHistoryAction,
+  loadDemoSeasonAction,
+  resetForProductionAction,
 } from "@/lib/actions/dev-actions";
 
 const PRESETS: { label: string; value: string; hint: string }[] = [
@@ -123,17 +125,55 @@ export function TimeTravelPanel({ simulatedNow }: { simulatedNow: string | null 
       </Card>
 
       <Card>
-        <h2 className="mb-1 text-sm font-extrabold text-ink">Fresh demo data</h2>
-        <p className="text-sm text-ink-soft">
-          To reset the entire demo season (volunteers, shifts, signups), run{" "}
-          <code className="rounded bg-line/60 px-1.5 py-0.5 font-mono text-xs">npm run db:seed</code>{" "}
-          from the project — it rebuilds everything except your manager account. Before real
-          volunteers use the app, set{" "}
-          <code className="rounded bg-line/60 px-1.5 py-0.5 font-mono text-xs">
-            ENABLE_TIME_TRAVEL=false
-          </code>{" "}
-          to hide this panel.
+        <h2 className="mb-1 text-sm font-extrabold text-ink">Demo data</h2>
+        <p className="mb-3 text-sm text-ink-soft">
+          The demo season fills the app with 15 pretend volunteers, two board members, and a
+          full shift schedule. Their email addresses are variants of yours (like{" "}
+          <code className="rounded bg-line/60 px-1.5 py-0.5 font-mono text-xs">you+vol3@…</code>
+          ), so everything the app &quot;sends them&quot; lands in your own inbox.
         </p>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={pending}
+            onClick={() => {
+              if (
+                confirm(
+                  "Load the demo season? This replaces ALL current volunteers, shifts, and signups with fresh demo data. Your manager account stays."
+                )
+              )
+                startTransition(async () => {
+                  setSchedResult(await loadDemoSeasonAction());
+                  router.refresh();
+                });
+            }}
+          >
+            Load demo season
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            disabled={pending}
+            onClick={() => {
+              if (
+                confirm(
+                  "Reset for real volunteers? This permanently deletes ALL volunteers, shifts, signups, messages, and email history — keeping only your manager account. Do this once, right before you start recruiting for real."
+                )
+              )
+                startTransition(async () => {
+                  setSchedResult(await resetForProductionAction());
+                  router.refresh();
+                });
+            }}
+          >
+            Reset for real volunteers
+          </Button>
+        </div>
+        <FieldHint>
+          After resetting for real volunteers, set ENABLE_TIME_TRAVEL=false in your hosting
+          settings to hide this panel entirely.
+        </FieldHint>
       </Card>
     </div>
   );

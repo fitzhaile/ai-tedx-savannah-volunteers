@@ -9,7 +9,7 @@ Neon; email via the manager's Gmail (Nodemailer).
 
 ```bash
 npm run dev          # dev server (needs local Postgres, see below)
-npm run build        # prisma generate + next build
+npm run build        # prisma generate + migrate deploy + next build (deploys auto-migrate)
 npm run lint         # eslint
 npm run typecheck    # tsc --noEmit
 npm test             # vitest

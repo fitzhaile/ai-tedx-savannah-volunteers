@@ -48,3 +48,25 @@ export async function clearReminderHistoryAction(): Promise<number> {
   revalidatePath("/", "layout");
   return count;
 }
+
+/** Replace everything (except the manager) with the fresh demo season. */
+export async function loadDemoSeasonAction(): Promise<string> {
+  const manager = await requireManager();
+  assertEnabled();
+  const { wipeAllButManager, seedDemoSeason } = await import("@/lib/demo-data");
+  await wipeAllButManager(prisma, manager.email);
+  const counts = await seedDemoSeason(prisma, manager.email);
+  revalidatePath("/", "layout");
+  return `Demo season loaded: ${counts.users} people, ${counts.shifts} shifts, ${counts.signups} signups.`;
+}
+
+/** The clean-slate reset before real volunteers start. Keeps only the manager. */
+export async function resetForProductionAction(): Promise<string> {
+  const manager = await requireManager();
+  assertEnabled();
+  const { wipeAllButManager } = await import("@/lib/demo-data");
+  await wipeAllButManager(prisma, manager.email);
+  await prisma.settings.update({ where: { id: 1 }, data: { simulatedNow: null } });
+  revalidatePath("/", "layout");
+  return "All demo data removed. Only your manager account remains — ready for real volunteers.";
+}

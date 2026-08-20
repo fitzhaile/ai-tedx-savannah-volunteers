@@ -6,9 +6,10 @@ Follow these once, top to bottom, and the app is live. Everything here uses free
 
 1. Go to [neon.tech](https://neon.tech) and create a free account.
 2. Create a project (name it `tedx-volunteers`, region: US East).
-3. On the project dashboard, copy the **connection string** — make sure the
-   "Pooled connection" option is selected. It looks like
-   `postgresql://user:pass@ep-xxx-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require`.
+3. On the project dashboard, click **Connect** and copy the connection
+   string — with the **"Connection pooling" toggle OFF** (deploys run
+   database migrations, which need the direct connection). It looks like
+   `postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require`.
 4. That value is your `DATABASE_URL`.
 
 ## 2. Gmail app password (for sending email)
@@ -45,29 +46,23 @@ Follow these once, top to bottom, and the app is live. Everything here uses free
 4. Deploy. When it finishes, set `APP_URL` to the real URL (Settings →
    Environment Variables) and redeploy.
 
-## 4. Create the database tables + demo season
+No terminal needed for the database: **every deploy creates/updates the
+database tables automatically** (the build runs `prisma migrate deploy`).
 
-From your own machine (or any terminal with the repo):
+## 4. First sign-in + demo season (all in the app)
 
-```bash
-npm install
-DATABASE_URL="<your Neon URL>" npx prisma migrate deploy   # create tables
-DATABASE_URL="<your Neon URL>" MANAGER_EMAIL="you@gmail.com" MANAGER_NAME="Your Name" npm run db:seed
-```
+1. Visit your app → **Sign in** → enter the same address you set as
+   `MANAGER_EMAIL` → click the link in your inbox. Your manager account
+   creates itself on first sign-in.
+2. Go to **Admin → ⏱ Time travel → Load demo season**. That fills the app
+   with 15 pretend volunteers (their addresses are plus-tagged versions of
+   yours, like `you+vol3@gmail.com`, so every email the app "sends them"
+   lands in *your* inbox), event shifts on May 13–15 2027, coaching sessions
+   in March–April, waitlists, and cancellations.
 
-The seed builds a full **demo season**: 15 fake volunteers (their addresses are
-plus-tagged versions of yours, like `you+vol3@gmail.com`, so every email the
-app sends them lands in *your* inbox), event shifts on May 13–15 2027,
-coaching sessions in March–April, waitlists, cancellations.
-
-When you're done testing and want a clean slate for real volunteers:
-
-```bash
-DATABASE_URL="..." MANAGER_EMAIL="you@gmail.com" SEED_DEMO=false SEED_WIPE=true npm run db:seed
-```
-
-That deletes every demo volunteer, shift, and email record — keeping only your
-manager account and settings.
+When you're done testing: **Admin → ⏱ Time travel → Reset for real
+volunteers** wipes all demo data (keeping your account), then set
+`ENABLE_TIME_TRAVEL=false` in Vercel and redeploy.
 
 ## 5. The scheduler ping (reminders + queued email)
 
