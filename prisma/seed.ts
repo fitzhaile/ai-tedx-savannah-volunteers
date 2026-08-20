@@ -12,7 +12,7 @@
  *
  * Run with: npm run db:seed
  */
-import { PrismaClient, Role, ShiftCategory, SignupStatus, Canceller } from "@prisma/client";
+import { PrismaClient, Role, ShiftCategory, SignupStatus, Canceller, type User, type StandardSlot } from "@prisma/client";
 import { fromZonedTime } from "date-fns-tz";
 
 const prisma = new PrismaClient();
@@ -77,7 +77,7 @@ async function main() {
     "Frank Osei", "Grace Liu", "Hector Ramos", "Imani Brooks", "Jonah Fields",
     "Keisha Grant", "Liam Doyle", "Maya Singh", "Noah Bennett", "Priya Patel",
   ];
-  const volunteers = [];
+  const volunteers: User[] = [];
   for (let i = 0; i < volunteerNames.length; i++) {
     volunteers.push(
       await prisma.user.create({
@@ -100,7 +100,7 @@ async function main() {
     { label: "Sat May 15 — Midday (Event Day)", startsAt: et(2027, 5, 15, 10, 30), endsAt: et(2027, 5, 15, 14) },
     { label: "Sat May 15 — Afternoon (Event Day)", startsAt: et(2027, 5, 15, 14), endsAt: et(2027, 5, 15, 18) },
   ];
-  const slots = [];
+  const slots: StandardSlot[] = [];
   for (let i = 0; i < slotDefs.length; i++) {
     slots.push(await prisma.standardSlot.create({ data: { ...slotDefs[i], sortOrder: i } }));
   }
