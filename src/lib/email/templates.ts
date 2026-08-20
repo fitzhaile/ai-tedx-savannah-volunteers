@@ -251,5 +251,36 @@ export function buildEmail(kind: EmailKind, p: EmailParams, loginUrl: string): R
           ctaUrl: loginUrl,
         }),
       };
+    case "DIRECT_MESSAGE":
+      return {
+        subject: `New message from ${String(p.senderName ?? "TEDxSavannah")}`,
+        html: layout({
+          preview: String(p.body ?? "").slice(0, 90),
+          bodyHtml:
+            heading(`Hi ${name},`) +
+            paragraphs(String(p.body ?? "")) +
+            `<p style="margin:8px 0 0;color:#777;font-size:13px;">— ${escapeHtml(String(p.senderName ?? "TEDxSavannah"))}</p>`,
+          ctaText: "Open the conversation",
+          ctaUrl: loginUrl,
+          footerNote:
+            "Or just reply to this email — it goes straight into the conversation.",
+        }),
+      };
+    case "THREAD_REPLY_NOTICE": {
+      const preview = String(p.body ?? "");
+      const short = preview.length > 300 ? `${preview.slice(0, 300)}…` : preview;
+      return {
+        subject: `${String(p.memberName)} sent you a message`,
+        html: layout({
+          preview: short.slice(0, 90),
+          bodyHtml:
+            heading(`${String(p.memberName)} wrote:`) +
+            `<p style="margin:0 0 14px;padding:10px 14px;background:#fafafa;border-left:3px solid ${RED};color:${INK};white-space:pre-wrap;">${escapeHtml(short)}</p>`,
+          ctaText: "Open the conversation",
+          ctaUrl: loginUrl,
+          footerNote: "You're receiving this because a volunteer wrote to you in the app.",
+        }),
+      };
+    }
   }
 }

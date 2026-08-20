@@ -28,7 +28,10 @@ Local Postgres for dev runs on port 5433 (`DATABASE_URL` in `.env`).
    `cancelledAt` timestamps.)
 2. **All outbound email goes through `src/lib/email/outbox.ts`**
    (`sendNow` for transactional, `enqueueEmail`+`drainOutbox` for bulk).
-   Never call nodemailer or `deliver()` directly from features.
+   Never call nodemailer or `deliver()` directly from features. Likewise all
+   inbound mail — real IMAP or the dev simulator — goes through
+   `ingestInboundEmail` in `src/lib/email/imap-sync.ts` (IMAP cursors and
+   ingested-mail timestamps are sanctioned real-time exceptions to rule 1).
 3. **No GET request may mutate app data.** Email links land on pages with a
    confirm button (email scanners prefetch links). `/a/[token]` only creates
    a session.
@@ -47,8 +50,10 @@ Local Postgres for dev runs on port 5433 (`DATABASE_URL` in `.env`).
 
 - `prisma/schema.prisma` — the whole data model; `prisma/seed.ts` — demo season
 - `src/lib/` — `auth.ts` (sessions/guards), `tokens.ts` (signed login links),
-  `clock.ts` (time travel), `scheduler.ts` (reminders), `messaging.ts`
-  (audience resolution), `email/` (templates, transport, outbox)
+  `clock.ts` (time travel), `scheduler.ts` (reminders + Gmail sync),
+  `messaging.ts` (audience resolution), `email/` (templates, transport,
+  outbox, `imap-sync.ts` two-way Gmail thread sync, `reply-clean.ts`),
+  `queries/threads.ts` (conversation reads/unread counts)
 - `src/lib/actions/` — all server actions (auth, signup, admin, message, dev)
 - `src/app/(public)` — landing, /join, /signin; `src/app/a/[token]` — link sign-in
 - `src/app/(app)` — authed: /shifts, /me, /board, /admin/**
@@ -63,6 +68,9 @@ Local Postgres for dev runs on port 5433 (`DATABASE_URL` in `.env`).
 - Forms use `useActionState` against actions returning `{ error?, ok? }`.
 - Emails: add a kind to the `EmailKind` enum + a template branch in
   `src/lib/email/templates.ts` + a notify helper in `src/lib/notify.ts`.
+- Conversation threads: one per non-manager user. Creation invariant:
+  `unreadForManager` only on FROM_MEMBER rows, `unreadForMember` only on
+  FROM_TEAM rows; viewing clears via POST server actions (never GET).
 - UI text is warm and plain-spoken; volunteers are thanked, never blamed.
 - TEDx red `#EB0028` = `text-ted`/`bg-ted`; see `src/app/globals.css` tokens.
 - Commit messages: plain descriptions only — no Co-Authored-By lines,

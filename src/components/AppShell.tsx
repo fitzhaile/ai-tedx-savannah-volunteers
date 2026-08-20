@@ -5,16 +5,21 @@ import { NavLinks } from "@/components/client/NavLinks";
 import { signOutAction } from "@/lib/actions/auth-actions";
 import { homeFor } from "@/lib/auth";
 import { getSettings } from "@/lib/clock";
+import { unreadCountForMember } from "@/lib/queries/threads";
 import { formatInTimeZone } from "date-fns-tz";
 import { TZ } from "@/lib/dates";
 import type { ReactNode } from "react";
 
 export async function AppShell({ user, children }: { user: User; children: ReactNode }) {
   const settings = await getSettings();
-  const links: { href: string; label: string }[] = [
+  const links: { href: string; label: string; badge?: number }[] = [
     { href: "/shifts", label: "Shifts" },
     { href: "/me", label: "My shifts" },
   ];
+  if (user.role !== "MANAGER") {
+    const unread = await unreadCountForMember(user.id);
+    links.push({ href: "/me/messages", label: "Messages", badge: unread || undefined });
+  }
   if (user.role === "BOARD" || user.role === "MANAGER") {
     links.push({ href: "/board", label: "My volunteers" });
   }

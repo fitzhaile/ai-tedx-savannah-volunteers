@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
 import { getSettings } from "@/lib/clock";
 import { sentTodayCount, queueDepth } from "@/lib/email/outbox";
+import { totalUnreadForManager } from "@/lib/queries/threads";
 import { Card, PageHeader, Badge, EmptyState, ButtonLink } from "@/components/ui";
 import { fmtShiftWhen, fmtDateShort, fmtTime } from "@/lib/dates";
 
@@ -26,7 +27,7 @@ function FillBar({ filled, capacity }: { filled: number; capacity: number }) {
 
 export default async function AdminDashboard() {
   const currentTime = await now();
-  const [settings, volunteers, upcomingShifts, cancellations, sentToday, queued] =
+  const [settings, volunteers, upcomingShifts, cancellations, sentToday, queued, unreadMessages] =
     await Promise.all([
       getSettings(),
       prisma.user.count({ where: { isActive: true } }),
@@ -43,6 +44,7 @@ export default async function AdminDashboard() {
       }),
       sentTodayCount(),
       queueDepth(),
+      totalUnreadForManager(),
     ]);
 
   const withFill = upcomingShifts.map((s) => ({
@@ -84,6 +86,15 @@ export default async function AdminDashboard() {
           <p className="text-xs font-semibold text-ink-soft">Emails sent today</p>
         </Card>
       </div>
+
+      {unreadMessages > 0 ? (
+        <div className="mb-6 rounded-xl bg-ted/10 px-4 py-3 text-sm font-semibold text-ted">
+          💬 {unreadMessages} unread message{unreadMessages === 1 ? "" : "s"} from volunteers.{" "}
+          <Link href="/admin/volunteers" className="underline">
+            View volunteers
+          </Link>
+        </div>
+      ) : null}
 
       {queued > 0 ? (
         <div className="mb-6 rounded-xl bg-warn-soft px-4 py-3 text-sm font-semibold text-warn">
@@ -150,7 +161,7 @@ export default async function AdminDashboard() {
                       Open roster →
                     </Link>
                     <Link
-                      href={`/admin/messages/new?user=${c.user.id}`}
+                      href={`/admin/volunteers/${c.user.id}`}
                       className="text-ted hover:underline"
                     >
                       Message {c.user.name.split(" ")[0]} →

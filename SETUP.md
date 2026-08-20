@@ -24,6 +24,17 @@ Follow these once, top to bottom, and the app is live. Everything here uses free
 > Later, if you want a `volunteers.tedxsavannah.com` sender instead, that's a
 > small change confined to `src/lib/email/send.ts` (e.g. switch to Resend).
 
+The same app password also lets the app **read** your Gmail for conversation
+threads: replies from volunteers (and even emails you send them directly from
+Gmail) appear in their conversation within ~10 minutes — or instantly via
+**Admin → Messages → "Check for replies"**. Two things to know:
+
+- IMAP is on by default for personal Gmail; Workspace admins can disable it
+  (Admin console → Apps → Google Workspace → Gmail → End User Access).
+- Leave the reply-to setting alone (it defaults to your `GMAIL_USER` inbox).
+  If replies go to a different address, the app can't see them — Admin →
+  Messages will warn you if that happens.
+
 ## 3. Deploy — Vercel (free)
 
 1. Go to [vercel.com](https://vercel.com), sign up with your GitHub account.
@@ -97,7 +108,9 @@ The app sends reminders and drains its email queue whenever
 | Set the standard shift times | Admin → Standard times |
 | See who dropped a shift & why | Admin dashboard → Recent cancellations (you also get an email) |
 | Remove someone from a shift, with a note | Admin → Shifts → open shift → Remove |
-| Email everyone / coaching crew / one roster / one person | Admin → Messages → New message |
+| Email everyone / coaching crew / one roster | Admin → Messages → New message |
+| Message one person & see their replies (threaded) | Admin → Volunteers → open them → Conversation |
+| See new volunteer messages at a glance | Dashboard banner + 💬 badges on the volunteer list |
 | Give a board member their own dashboard | Admin → Board → Add (then assign them shifts) |
 | Someone can't sign in | Admin → Volunteers → open them → Copy sign-in link, text it to them |
 | Event-day arrivals | Admin → Check-in (works great on a phone) |

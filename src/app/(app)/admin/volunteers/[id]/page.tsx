@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { requireManager } from "@/lib/auth";
 import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/ui";
 import { VolunteerEditForm, VolunteerTools } from "@/components/client/VolunteerAdmin";
+import { ThreadPanel } from "@/components/client/ThreadPanel";
+import { getThread } from "@/lib/queries/threads";
 import { fmtShiftWhen } from "@/lib/dates";
 
 export const metadata = { title: "Volunteer · Admin" };
@@ -31,6 +33,7 @@ export default async function VolunteerDetailPage({
     },
   });
   if (!user) notFound();
+  const thread = user.role === "MANAGER" ? null : await getThread(user.id);
 
   return (
     <div>
@@ -73,6 +76,18 @@ export default async function VolunteerDetailPage({
           </Card>
         </div>
 
+        <div className="space-y-6">
+        {thread !== null ? (
+          <Card>
+            <h2 className="mb-3 text-sm font-extrabold text-ink">Conversation</h2>
+            <ThreadPanel
+              viewer="manager"
+              threadUserId={user.id}
+              counterpartName={user.name.split(" ")[0]}
+              messages={thread}
+            />
+          </Card>
+        ) : null}
         <Card>
           <h2 className="mb-3 text-sm font-extrabold text-ink">Shift history</h2>
           {user.signups.length === 0 ? (
@@ -107,6 +122,7 @@ export default async function VolunteerDetailPage({
             </div>
           )}
         </Card>
+        </div>
       </div>
     </div>
   );

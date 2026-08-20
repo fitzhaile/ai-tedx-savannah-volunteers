@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/clock";
 import { sentTodayCount, queueDepth } from "@/lib/email/outbox";
 import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/ui";
+import { SyncNowButton } from "@/components/client/SyncNowButton";
 import { formatInTimeZone } from "date-fns-tz";
 import { TZ } from "@/lib/dates";
 
@@ -20,6 +21,8 @@ const KIND_LABEL: Record<string, string> = {
   REMINDER: "Reminder",
   BROADCAST: "Broadcast",
   SPOT_OPENED: "Spot opened",
+  DIRECT_MESSAGE: "Direct message",
+  THREAD_REPLY_NOTICE: "Reply notice",
 };
 
 export default async function AdminMessagesPage() {
@@ -43,13 +46,33 @@ export default async function AdminMessagesPage() {
     }),
   ]);
 
+  const gmailMode = (process.env.EMAIL_TRANSPORT ?? "console") === "gmail";
+  const gmailUser = process.env.GMAIL_USER?.trim().toLowerCase();
+  const replyToMismatch =
+    gmailMode &&
+    !!settings.replyToEmail &&
+    !!gmailUser &&
+    settings.replyToEmail.trim().toLowerCase() !== gmailUser;
+
   return (
     <div>
       <PageHeader
         title="Messages"
         subtitle={`${sentToday} of ${settings.dailyEmailBudget} daily emails used · ${queued} queued`}
-        action={<ButtonLink href="/admin/messages/new" size="sm">✉ New message</ButtonLink>}
+        action={
+          <div className="flex items-center gap-2">
+            {gmailMode ? <SyncNowButton /> : null}
+            <ButtonLink href="/admin/messages/new" size="sm">✉ New message</ButtonLink>
+          </div>
+        }
       />
+
+      {replyToMismatch ? (
+        <div className="mb-6 rounded-xl bg-warn-soft px-4 py-3 text-sm font-semibold text-warn">
+          Replies currently go to {settings.replyToEmail}, but the app reads the {gmailUser}{" "}
+          inbox — volunteer replies won&apos;t appear in conversations until those match.
+        </div>
+      ) : null}
 
       <div className="grid items-start gap-6 lg:grid-cols-2">
         <section>

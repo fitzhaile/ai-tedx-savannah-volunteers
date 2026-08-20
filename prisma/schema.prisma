@@ -29,12 +29,14 @@ model User {
   updatedAt  DateTime  @updatedAt
   lastSeenAt DateTime?
 
-  sessions      Session[]
-  signups       Signup[]
-  ownedShifts   Shift[]    @relation("ShiftOwner")
-  createdShifts Shift[]    @relation("ShiftCreator")
-  messages      Message[]
-  emails        EmailLog[]
+  sessions        Session[]
+  signups         Signup[]
+  ownedShifts     Shift[]         @relation("ShiftOwner")
+  createdShifts   Shift[]         @relation("ShiftCreator")
+  messages        Message[]
+  emails          EmailLog[]
+  threadMessages  ThreadMessage[] @relation("ThreadOwner")
+  authoredThreads ThreadMessage[] @relation("ThreadAuthor")
 
   @@map("users")
 }
@@ -183,6 +185,8 @@ enum EmailKind {
   REMINDER
   BROADCAST
   SPOT_OPENED
+  DIRECT_MESSAGE
+  THREAD_REPLY_NOTICE
 }
 
 enum EmailStatus {
@@ -212,9 +216,54 @@ model EmailLog {
   dedupeKey    String?     @unique
   createdAt    DateTime    @default(now())
 
+  threadMessage ThreadMessage?
+
   @@index([status])
   @@index([sentAt])
+  @@index([providerId])
   @@map("email_log")
+}
+
+// ---------------------------------------------------------------------------
+// Conversation threads (one per non-manager user <-> the team)
+// ---------------------------------------------------------------------------
+
+enum ThreadDirection {
+  FROM_TEAM
+  FROM_MEMBER
+}
+
+enum ThreadSource {
+  APP
+  EMAIL
+}
+
+// userId is the thread owner — the volunteer or board member. Invariant:
+// unreadForManager is set only on FROM_MEMBER rows, unreadForMember only on
+// FROM_TEAM rows; both clear when the respective side views the thread.
+model ThreadMessage {
+  id               String          @id @default(cuid())
+  userId           String
+  user             User            @relation("ThreadOwner", fields: [userId], references: [id], onDelete: Cascade)
+  direction        ThreadDirection
+  source           ThreadSource
+  authorId         String?
+  author           User?           @relation("ThreadAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  subject          String?
+  body             String
+  emailLogId       String?         @unique
+  emailLog         EmailLog?       @relation(fields: [emailLogId], references: [id], onDelete: SetNull)
+  emailMessageId   String?
+  unreadForManager Boolean         @default(false)
+  unreadForMember  Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+
+  // Per-thread, not global: one Gmail email addressed to two members becomes
+  // one row in each of their threads.
+  @@unique([userId, emailMessageId])
+  @@index([userId, createdAt])
+  @@index([unreadForManager])
+  @@map("thread_messages")
 }
 
 // Single-row app settings (id is always 1). simulatedNow powers time travel.
@@ -225,6 +274,13 @@ model Settings {
   dailyEmailBudget Int       @default(400)
   timezone         String    @default("America/New_York")
   simulatedNow     DateTime?
+  // IMAP sync bookkeeping (real time, not simulated). uidValidity kept as
+  // String because imapflow reports BigInt values.
+  inboxUidNext     Int?
+  inboxUidValidity String?
+  sentUidNext      Int?
+  sentUidValidity  String?
+  lastImapSyncAt   DateTime?
   updatedAt        DateTime  @updatedAt
 
   @@map("settings")

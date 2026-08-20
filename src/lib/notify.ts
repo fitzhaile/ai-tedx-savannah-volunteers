@@ -1,5 +1,5 @@
 import "server-only";
-import type { Shift, User } from "@prisma/client";
+import type { EmailLog, Shift, User } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { sendNow } from "@/lib/email/outbox";
 import { fmtShiftWhen, fmtDateShort } from "@/lib/dates";
@@ -117,6 +117,40 @@ export async function notifyRemoved(user: User, shift: Shift, note: string | nul
     linkPath: "/shifts",
     params: { name: user.name, note: note ?? undefined, ...shiftParams(shift) },
   });
+}
+
+/**
+ * A direct thread message from the team to one member. Returns the outbox
+ * row so the caller can link it to the ThreadMessage (emailLogId).
+ */
+export async function notifyDirectMessage(
+  member: User,
+  sender: User,
+  body: string
+): Promise<EmailLog | null> {
+  return sendNow({
+    kind: "DIRECT_MESSAGE",
+    toEmail: member.email,
+    userId: member.id,
+    linkPath: "/me/messages",
+    params: { name: member.name, senderName: sender.name, body },
+  });
+}
+
+/** Tell the manager(s) a member wrote in the app (email replies skip this). */
+export async function notifyThreadReplyNotice(member: User, body: string): Promise<void> {
+  const managers = await prisma.user.findMany({ where: { role: "MANAGER", isActive: true } });
+  await Promise.all(
+    managers.map((m) =>
+      sendNow({
+        kind: "THREAD_REPLY_NOTICE",
+        toEmail: m.email,
+        userId: m.id,
+        linkPath: `/admin/volunteers/${member.id}`,
+        params: { memberName: member.name, body },
+      })
+    )
+  );
 }
 
 /** Tell everyone on the waitlist a spot opened. First claim wins. */
