@@ -14,6 +14,10 @@ import { fromZonedTime } from "date-fns-tz";
  * Demo-season data, shared by `prisma/seed.ts` (CLI) and the time-travel
  * panel's "Load demo season" button (server action). Must stay importable
  * from plain Node — no "server-only", no "@/lib/db".
+ *
+ * Demo volunteers are plus-tagged on the manager's work address
+ * (fitz+v1-nora-caldwell@fitzhaile.com); demo board members are plus-tagged
+ * on the manager's sign-in email. Both deliver to the manager's own inboxes.
  */
 
 const TZ = "America/New_York";
@@ -93,17 +97,22 @@ export async function seedDemoSeason(
   });
 
   // --- Volunteers ---------------------------------------------------------
+  // Demo volunteers get plus-tagged addresses on the manager's work account
+  // (fitz+v3-tessa-okafor@fitzhaile.com), so every email the app sends them
+  // lands in the manager's work inbox, labeled by who it was "for".
+  const VOLUNTEER_EMAIL_BASE = "fitz@fitzhaile.com";
   const volunteerNames = [
-    "Ava Thompson", "Ben Ortiz", "Carmen Diaz", "Derek Hall", "Elena Petrov",
-    "Frank Osei", "Grace Liu", "Hector Ramos", "Imani Brooks", "Jonah Fields",
-    "Keisha Grant", "Liam Doyle", "Maya Singh", "Noah Bennett", "Priya Patel",
+    "Nora Caldwell", "Miles Bergstrom", "Tessa Okafor", "Julian Reyes", "Harper Nguyen",
+    "Desmond Clarke", "Ivy Marchetti", "Silas Boone", "Camille Duplessis", "Theo Lindqvist",
+    "Renata Vasquez", "Oscar Whitfield", "Daphne Kimura", "Grant Abernathy", "Lucia Moreau",
   ];
   const volunteers: User[] = [];
   for (let i = 0; i < volunteerNames.length; i++) {
+    const nameSlug = volunteerNames[i].toLowerCase().replace(/\s+/g, "-");
     volunteers.push(
       await prisma.user.create({
         data: {
-          email: plusAddress(managerEmail, `vol${i + 1}`),
+          email: plusAddress(VOLUNTEER_EMAIL_BASE, `v${i + 1}-${nameSlug}`),
           name: volunteerNames[i],
           phone: `912-555-0${String(200 + i)}`,
         },
