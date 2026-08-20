@@ -1,0 +1,231 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// People
+// ---------------------------------------------------------------------------
+
+enum Role {
+  VOLUNTEER
+  BOARD
+  MANAGER
+}
+
+model User {
+  id         String    @id @default(cuid())
+  email      String    @unique
+  name       String
+  phone      String?
+  role       Role      @default(VOLUNTEER)
+  isActive   Boolean   @default(true)
+  adminNotes String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  lastSeenAt DateTime?
+
+  sessions      Session[]
+  signups       Signup[]
+  ownedShifts   Shift[]    @relation("ShiftOwner")
+  createdShifts Shift[]    @relation("ShiftCreator")
+  messages      Message[]
+  emails        EmailLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  token      String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// ---------------------------------------------------------------------------
+// Shifts
+// ---------------------------------------------------------------------------
+
+enum ShiftCategory {
+  EVENT
+  COACHING
+  GENERAL
+}
+
+// Manager-defined standard shift times. Board needs are expected to fit these;
+// a shift can still be created with custom times (slotId = null) as the
+// special-occasion escape hatch.
+model StandardSlot {
+  id        String   @id @default(cuid())
+  label     String
+  startsAt  DateTime
+  endsAt    DateTime
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  shifts    Shift[]
+
+  @@map("standard_slots")
+}
+
+model Shift {
+  id          String        @id @default(cuid())
+  title       String
+  category    ShiftCategory @default(EVENT)
+  slotId      String?
+  slot        StandardSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  startsAt    DateTime
+  endsAt      DateTime
+  capacity    Int
+  location    String?
+  description String?
+  ownerId     String?
+  owner       User?         @relation("ShiftOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  isPublished Boolean       @default(true)
+  createdById String?
+  createdBy   User?         @relation("ShiftCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  signups  Signup[]
+  messages Message[]
+
+  @@index([startsAt])
+  @@map("shifts")
+}
+
+enum SignupStatus {
+  CONFIRMED
+  WAITLISTED
+  CANCELLED
+  CHECKED_IN
+  NO_SHOW
+}
+
+enum Canceller {
+  SELF
+  ADMIN
+}
+
+// One row per user/shift, reused across cancel/re-signup cycles.
+model Signup {
+  id          String       @id @default(cuid())
+  shiftId     String
+  shift       Shift        @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      SignupStatus @default(CONFIRMED)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  cancelledAt DateTime?
+  cancelledBy Canceller?
+  cancelNote  String?
+  checkedInAt DateTime?
+
+  @@unique([shiftId, userId])
+  @@index([userId])
+  @@map("signups")
+}
+
+// ---------------------------------------------------------------------------
+// Communication
+// ---------------------------------------------------------------------------
+
+enum AudienceType {
+  ALL_ACTIVE
+  SHIFT
+  CATEGORY
+  USERS
+}
+
+enum MessageStatus {
+  QUEUED
+  SENT
+  PARTIAL
+}
+
+model Message {
+  id           String         @id @default(cuid())
+  senderId     String
+  sender       User           @relation(fields: [senderId], references: [id])
+  audienceType AudienceType
+  shiftId      String?
+  shift        Shift?         @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+  category     ShiftCategory?
+  userIds      String[]       @default([])
+  subject      String
+  body         String
+  status       MessageStatus  @default(QUEUED)
+  createdAt    DateTime       @default(now())
+  sentAt       DateTime?
+  emails       EmailLog[]
+
+  @@map("messages")
+}
+
+enum EmailKind {
+  MAGIC_LINK
+  WELCOME
+  BOARD_INVITE
+  SIGNUP_CONFIRM
+  CANCEL_CONFIRM
+  CANCEL_ALERT
+  REMOVED_NOTICE
+  REMINDER
+  BROADCAST
+  SPOT_OPENED
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  FAILED
+  SKIPPED
+}
+
+// Unified outbox + audit trail. Every outbound email gets a row.
+model EmailLog {
+  id           String      @id @default(cuid())
+  kind         EmailKind
+  messageId    String?
+  message      Message?    @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  toEmail      String
+  subject      String
+  paramsJson   Json?
+  status       EmailStatus @default(QUEUED)
+  scheduledFor DateTime?
+  sentAt       DateTime?
+  attempts     Int         @default(0)
+  lastError    String?
+  providerId   String?
+  dedupeKey    String?     @unique
+  createdAt    DateTime    @default(now())
+
+  @@index([status])
+  @@index([sentAt])
+  @@map("email_log")
+}
+
+// Single-row app settings (id is always 1). simulatedNow powers time travel.
+model Settings {
+  id               Int       @id @default(1)
+  replyToEmail     String?
+  fromName         String    @default("TEDxSavannah Volunteers")
+  dailyEmailBudget Int       @default(400)
+  timezone         String    @default("America/New_York")
+  simulatedNow     DateTime?
+  updatedAt        DateTime  @updatedAt
+
+  @@map("settings")
+}
