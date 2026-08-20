@@ -25,7 +25,10 @@ export async function AppShell({ user, children }: { user: User; children: React
   return (
     <div className="min-h-screen">
       {settings.simulatedNow ? (
-        <div className="bg-warn px-4 py-1.5 text-center text-xs font-bold text-white">
+        <div
+          data-testid="time-travel-banner"
+          className="bg-warn px-4 py-1.5 text-center text-xs font-bold text-white"
+        >
           ⏱ Simulated time:{" "}
           {formatInTimeZone(settings.simulatedNow, TZ, "EEE, MMM d, yyyy · h:mm a")}
           {user.role === "MANAGER" ? (

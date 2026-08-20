@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { now } from "@/lib/clock";
+import { transactionalSignup, type SignupResult } from "@/lib/signup-core";
 import {
   notifySignupConfirmed,
   notifyCancelConfirmed,
@@ -11,9 +12,7 @@ import {
   notifySpotOpened,
 } from "@/lib/notify";
 
-export type SignupResult =
-  | { ok: true; status: "confirmed" | "waitlisted" }
-  | { ok: false; reason: "full" | "past" | "unavailable" | "already" };
+export type { SignupResult } from "@/lib/signup-core";
 
 function revalidateShiftPages() {
   revalidatePath("/shifts");
@@ -22,61 +21,9 @@ function revalidateShiftPages() {
   revalidatePath("/admin");
 }
 
-/**
- * Capacity-safe signup. The shift row is locked FOR UPDATE so two volunteers
- * racing for the last spot can't both get it.
- */
-async function transactionalSignup(
-  shiftId: string,
-  userId: string,
-  allowWaitlist: boolean
-): Promise<SignupResult> {
-  const currentTime = await now();
-  return prisma.$transaction(async (tx) => {
-    await tx.$queryRaw`SELECT id FROM shifts WHERE id = ${shiftId} FOR UPDATE`;
-    const shift = await tx.shift.findUnique({ where: { id: shiftId } });
-    if (!shift || !shift.isPublished) return { ok: false as const, reason: "unavailable" as const };
-    if (shift.endsAt < currentTime) return { ok: false as const, reason: "past" as const };
-
-    const existing = await tx.signup.findUnique({
-      where: { shiftId_userId: { shiftId, userId } },
-    });
-    if (existing && (existing.status === "CONFIRMED" || existing.status === "CHECKED_IN")) {
-      return { ok: false as const, reason: "already" as const };
-    }
-
-    const filled = await tx.signup.count({
-      where: { shiftId, status: { in: ["CONFIRMED", "CHECKED_IN"] } },
-    });
-
-    if (filled >= shift.capacity) {
-      if (!allowWaitlist) return { ok: false as const, reason: "full" as const };
-      await tx.signup.upsert({
-        where: { shiftId_userId: { shiftId, userId } },
-        update: { status: "WAITLISTED", cancelledAt: null, cancelledBy: null, cancelNote: null },
-        create: { shiftId, userId, status: "WAITLISTED" },
-      });
-      return { ok: true as const, status: "waitlisted" as const };
-    }
-
-    await tx.signup.upsert({
-      where: { shiftId_userId: { shiftId, userId } },
-      update: {
-        status: "CONFIRMED",
-        cancelledAt: null,
-        cancelledBy: null,
-        cancelNote: null,
-        checkedInAt: null,
-      },
-      create: { shiftId, userId, status: "CONFIRMED" },
-    });
-    return { ok: true as const, status: "confirmed" as const };
-  });
-}
-
 export async function signUpForShift(shiftId: string): Promise<SignupResult> {
   const user = await requireUser();
-  const result = await transactionalSignup(shiftId, user.id, false);
+  const result = await transactionalSignup(shiftId, user.id, false, await now());
   if (result.ok && result.status === "confirmed") {
     const shift = await prisma.shift.findUnique({ where: { id: shiftId } });
     if (shift) await notifySignupConfirmed(user, shift);
@@ -88,7 +35,7 @@ export async function signUpForShift(shiftId: string): Promise<SignupResult> {
 /** Join the waitlist of a full shift (or grab a spot if one opened meanwhile). */
 export async function joinWaitlist(shiftId: string): Promise<SignupResult> {
   const user = await requireUser();
-  const result = await transactionalSignup(shiftId, user.id, true);
+  const result = await transactionalSignup(shiftId, user.id, true, await now());
   if (result.ok && result.status === "confirmed") {
     const shift = await prisma.shift.findUnique({ where: { id: shiftId } });
     if (shift) await notifySignupConfirmed(user, shift);
@@ -106,7 +53,7 @@ export async function claimSpot(shiftId: string): Promise<SignupResult> {
   if (!existing || existing.status !== "WAITLISTED") {
     return signUpForShift(shiftId);
   }
-  const result = await transactionalSignup(shiftId, user.id, false);
+  const result = await transactionalSignup(shiftId, user.id, false, await now());
   if (result.ok && result.status === "confirmed") {
     const shift = await prisma.shift.findUnique({ where: { id: shiftId } });
     if (shift) await notifySignupConfirmed(user, shift);
