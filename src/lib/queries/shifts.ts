@@ -19,7 +19,8 @@ export async function getShiftBoard(userId: string, from: Date): Promise<ShiftBo
     ).length;
     const mine = s.signups.find((x) => x.userId === userId);
     const my: MySignupInfo | null = mine ? { id: mine.id, status: mine.status } : null;
-    const { signups: _signups, ...rest } = s;
+    const rest = { ...s, signups: undefined };
+    delete rest.signups;
     return { ...rest, filled, my };
   });
 }
