@@ -52,6 +52,12 @@ export default async function MePage() {
                 {s.shift.location ? (
                   <p className="mt-0.5 text-sm text-ink-soft">{s.shift.location}</p>
                 ) : null}
+                <a
+                  href={`/api/ics/${s.id}`}
+                  className="mt-1 inline-block text-xs font-bold text-ted hover:underline"
+                >
+                  + Add to calendar
+                </a>
               </div>
               <SignupControls
                 shiftId={s.shiftId}

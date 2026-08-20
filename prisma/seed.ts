@@ -21,6 +21,9 @@ const TZ = "America/New_York";
 const MANAGER_EMAIL = (process.env.MANAGER_EMAIL ?? "manager@example.com").toLowerCase().trim();
 const MANAGER_NAME = process.env.MANAGER_NAME ?? "Volunteer Manager";
 const SEED_DEMO = process.env.SEED_DEMO !== "false";
+// SEED_WIPE=true clears all demo/volunteer data without recreating it —
+// use once before real volunteers start (keeps manager + settings).
+const SEED_WIPE = SEED_DEMO || process.env.SEED_WIPE === "true";
 
 /** "you+tag@gmail.com" from the manager's own address — Gmail delivers these to the same inbox. */
 function plusAddress(tag: string): string {
@@ -49,19 +52,25 @@ async function main() {
   });
   console.log(`Manager: ${manager.name} <${manager.email}>`);
 
-  if (!SEED_DEMO) {
-    console.log("SEED_DEMO=false — skipping demo data.");
-    return;
+  if (SEED_WIPE) {
+    // --- Wipe existing data (keeps the manager account) ------------------
+    await prisma.emailLog.deleteMany({});
+    await prisma.message.deleteMany({});
+    await prisma.signup.deleteMany({});
+    await prisma.shift.deleteMany({});
+    await prisma.standardSlot.deleteMany({});
+    await prisma.session.deleteMany({});
+    await prisma.user.deleteMany({ where: { email: { not: MANAGER_EMAIL } } });
   }
 
-  // --- Wipe demo data (keeps the manager account) ------------------------
-  await prisma.emailLog.deleteMany({});
-  await prisma.message.deleteMany({});
-  await prisma.signup.deleteMany({});
-  await prisma.shift.deleteMany({});
-  await prisma.standardSlot.deleteMany({});
-  await prisma.session.deleteMany({});
-  await prisma.user.deleteMany({ where: { email: { not: MANAGER_EMAIL } } });
+  if (!SEED_DEMO) {
+    console.log(
+      SEED_WIPE
+        ? "Wiped all data except the manager account. Ready for real volunteers."
+        : "SEED_DEMO=false — nothing changed beyond manager/settings."
+    );
+    return;
+  }
 
   // --- Board members ------------------------------------------------------
   const sarah = await prisma.user.create({
