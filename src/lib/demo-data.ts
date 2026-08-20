@@ -15,9 +15,9 @@ import { fromZonedTime } from "date-fns-tz";
  * panel's "Load demo season" button (server action). Must stay importable
  * from plain Node — no "server-only", no "@/lib/db".
  *
- * Demo volunteers are plus-tagged on the manager's work address
- * (fitz+v1-nora-caldwell@fitzhaile.com); demo board members are plus-tagged
- * on the manager's sign-in email. Both deliver to the manager's own inboxes.
+ * Demo volunteers and board members are plus-tagged on the manager's work
+ * address (fitz+v1-nora-caldwell@fitzhaile.com, fitz+b1-sarah-chen@
+ * fitzhaile.com), so all demo email delivers to the manager's work inbox.
  */
 
 const TZ = "America/New_York";
@@ -78,10 +78,16 @@ export async function seedDemoSeason(
   const manager = await prisma.user.findUnique({ where: { email: managerEmail } });
   if (!manager) throw new Error(`Manager account ${managerEmail} not found`);
 
+  // All demo people get plus-tagged addresses on the manager's work account
+  // (fitz+v3-tessa-okafor@..., fitz+b1-sarah-chen@...), so every email the
+  // app sends them lands in the manager's work inbox, labeled by recipient.
+  const DEMO_EMAIL_BASE = "fitz@fitzhaile.com";
+
   // --- Board members ------------------------------------------------------
+  // Same work-address pattern as the volunteers, with a b<n> tag.
   const sarah = await prisma.user.create({
     data: {
-      email: plusAddress(managerEmail, "sarah"),
+      email: plusAddress(DEMO_EMAIL_BASE, "b1-sarah-chen"),
       name: "Sarah Chen",
       role: Role.BOARD,
       phone: "912-555-0142",
@@ -89,7 +95,7 @@ export async function seedDemoSeason(
   });
   const marcus = await prisma.user.create({
     data: {
-      email: plusAddress(managerEmail, "marcus"),
+      email: plusAddress(DEMO_EMAIL_BASE, "b2-marcus-webb"),
       name: "Marcus Webb",
       role: Role.BOARD,
       phone: "912-555-0177",
@@ -97,10 +103,6 @@ export async function seedDemoSeason(
   });
 
   // --- Volunteers ---------------------------------------------------------
-  // Demo volunteers get plus-tagged addresses on the manager's work account
-  // (fitz+v3-tessa-okafor@fitzhaile.com), so every email the app sends them
-  // lands in the manager's work inbox, labeled by who it was "for".
-  const VOLUNTEER_EMAIL_BASE = "fitz@fitzhaile.com";
   const volunteerNames = [
     "Nora Caldwell", "Miles Bergstrom", "Tessa Okafor", "Julian Reyes", "Harper Nguyen",
     "Desmond Clarke", "Ivy Marchetti", "Silas Boone", "Camille Duplessis", "Theo Lindqvist",
@@ -112,7 +114,7 @@ export async function seedDemoSeason(
     volunteers.push(
       await prisma.user.create({
         data: {
-          email: plusAddress(VOLUNTEER_EMAIL_BASE, `v${i + 1}-${nameSlug}`),
+          email: plusAddress(DEMO_EMAIL_BASE, `v${i + 1}-${nameSlug}`),
           name: volunteerNames[i],
           phone: `912-555-0${String(200 + i)}`,
         },
