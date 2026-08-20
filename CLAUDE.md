@@ -65,3 +65,5 @@ Local Postgres for dev runs on port 5433 (`DATABASE_URL` in `.env`).
   `src/lib/email/templates.ts` + a notify helper in `src/lib/notify.ts`.
 - UI text is warm and plain-spoken; volunteers are thanked, never blamed.
 - TEDx red `#EB0028` = `text-ted`/`bg-ted`; see `src/app/globals.css` tokens.
+- Commit messages: plain descriptions only — no Co-Authored-By lines,
+  session links, or other AI-attribution footers.
