@@ -17,7 +17,9 @@ const RED = "#eb0028";
 const INK = "#0b0b0c";
 const MUTED = "#5a5a60";
 const FAINT = "#9a9aa1";
-const FONT = "'Helvetica Neue',Helvetica,Arial,sans-serif";
+const LINE = "#e4e4e1";
+const MUTED_BG = "#f5f5f3";
+const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif";
 
 /** Red kicker line above each headline, per email kind. */
 const EYEBROW: Record<EmailKind, string> = {
@@ -54,24 +56,23 @@ function paragraphs(text: string): string {
     .join("");
 }
 
-function detailRow(label: string, value: string): string {
+function detailRow(label: string, value: string, last: boolean): string {
+  const border = last ? "" : `border-bottom:1px solid ${LINE};`;
   return `<tr>
-    <td style="padding:3px 16px 3px 0;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${FAINT};white-space:nowrap;vertical-align:baseline;">${label}</td>
-    <td style="padding:3px 0;font-size:15px;font-weight:700;letter-spacing:-0.2px;color:${INK};">${escapeHtml(value)}</td>
+    <td style="padding:10px 14px;${border}font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${FAINT};white-space:nowrap;vertical-align:top;width:70px;">${label}</td>
+    <td style="padding:10px 14px 10px 0;${border}font-size:15px;font-weight:600;color:${INK};">${escapeHtml(value)}</td>
   </tr>`;
 }
 
-/** Shift facts as an editorial block: thin red rule, bold values. */
+/** Shift facts as a bordered card, like the app's detail cards. */
 function shiftDetails(p: EmailParams): string {
   const rows = [
-    p.shiftTitle ? detailRow("Shift", String(p.shiftTitle)) : "",
-    p.when ? detailRow("When", String(p.when)) : "",
-    p.location ? detailRow("Where", String(p.location)) : "",
-  ].join("");
-  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 20px;width:100%;"><tr>
-    <td style="border-left:3px solid ${RED};padding:6px 0 6px 16px;">
-      <table role="presentation" cellpadding="0" cellspacing="0"><tbody>${rows}</tbody></table>
-    </td></tr></table>`;
+    p.shiftTitle ? ["Shift", String(p.shiftTitle)] : null,
+    p.when ? ["When", String(p.when)] : null,
+    p.location ? ["Where", String(p.location)] : null,
+  ].filter((r): r is string[] => r !== null);
+  const body = rows.map((r, i) => detailRow(r[0], r[1], i === rows.length - 1)).join("");
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 20px;width:100%;border:1px solid ${LINE};border-radius:10px;border-collapse:separate;overflow:hidden;"><tbody>${body}</tbody></table>`;
 }
 
 function layout(opts: {
@@ -83,31 +84,33 @@ function layout(opts: {
   footerNote?: string;
 }): string {
   const eyebrow = opts.eyebrow
-    ? `<p style="margin:0 0 10px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:${RED};">${escapeHtml(opts.eyebrow)}</p>`
+    ? `<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${RED};">${escapeHtml(opts.eyebrow)}</p>`
     : "";
   const cta =
     opts.ctaText && opts.ctaUrl
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td style="border-radius:999px;background:${RED};">
-           <a href="${opts.ctaUrl}" style="display:inline-block;padding:13px 26px;border-radius:999px;color:#ffffff;text-decoration:none;font-weight:800;font-size:15px;letter-spacing:-0.2px;">${escapeHtml(opts.ctaText)}</a>
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td style="border-radius:10px;background:${RED};">
+           <a href="${opts.ctaUrl}" style="display:inline-block;padding:12px 22px;border-radius:10px;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;">${escapeHtml(opts.ctaText)}</a>
          </td></tr></table>`
       : "";
   const note = opts.footerNote ?? "Questions? Just reply to this email — it goes straight to the volunteer manager.";
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f5f3;font-family:${FONT};">
+  return `<!doctype html><html><body style="margin:0;padding:0;background:${MUTED_BG};font-family:${FONT};">
   <div style="display:none;max-height:0;overflow:hidden;">${escapeHtml(opts.preview)}</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f3;"><tr><td align="center" style="padding:28px 12px 36px;">
-    <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${MUTED_BG};"><tr><td align="center" style="padding:28px 12px 36px;">
+    <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;border:1px solid ${LINE};border-radius:12px;border-collapse:separate;overflow:hidden;background:#ffffff;">
       <tr><td style="background:${INK};padding:18px 28px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
           <td style="font-family:${FONT};font-size:19px;font-weight:800;letter-spacing:-0.5px;color:#ffffff;">TED<span style="color:${RED};">x</span>Savannah</td>
-          <td align="right" style="font-family:${FONT};font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#a3a3a8;">Volunteers</td>
+          <td align="right" style="font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#a3a3a8;">Volunteers</td>
         </tr></table>
       </td></tr>
-      <tr><td style="background:#ffffff;padding:32px 28px 30px;">
+      <tr><td style="padding:32px 28px 30px;">
         ${eyebrow}
         ${opts.bodyHtml}
         ${cta}
       </td></tr>
-      <tr><td style="padding:18px 4px 0;font-size:12px;line-height:1.7;color:${FAINT};">
+    </table>
+    <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+      <tr><td style="padding:18px 8px 0;font-size:12px;line-height:1.7;color:${FAINT};">
         ${note}<br/>
         <span style="color:#b8b8bd;">TEDxSavannah · This independent TEDx event is operated under license from TED.</span>
       </td></tr>
@@ -117,7 +120,7 @@ function layout(opts: {
 }
 
 function heading(text: string): string {
-  return `<h1 style="margin:0 0 16px;font-size:27px;line-height:1.12;letter-spacing:-0.7px;font-weight:800;color:${INK};">${escapeHtml(text)}</h1>`;
+  return `<h1 style="margin:0 0 16px;font-size:26px;line-height:1.15;letter-spacing:-0.5px;font-weight:700;color:${INK};">${escapeHtml(text)}</h1>`;
 }
 
 export function buildEmail(kind: EmailKind, p: EmailParams, loginUrl: string): RenderedEmail {
@@ -236,9 +239,9 @@ export function buildEmail(kind: EmailKind, p: EmailParams, loginUrl: string): R
       const list = shifts
         .map(
           (s) =>
-            `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 14px;width:100%;"><tr><td style="border-left:3px solid ${RED};padding:4px 0 4px 16px;">
-              <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px;color:${INK};">${escapeHtml(s.title)}</div>
-              <div style="font-size:14px;font-weight:700;color:${INK};margin-top:3px;">${escapeHtml(s.when)}</div>
+            `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 10px;width:100%;border:1px solid ${LINE};border-radius:10px;border-collapse:separate;"><tr><td style="padding:12px 14px;">
+              <div style="font-size:16px;font-weight:700;letter-spacing:-0.2px;color:${INK};">${escapeHtml(s.title)}</div>
+              <div style="font-size:14px;font-weight:600;color:${INK};margin-top:3px;">${escapeHtml(s.when)}</div>
               ${s.location ? `<div style="font-size:13px;color:${MUTED};margin-top:2px;">${escapeHtml(s.location)}</div>` : ""}
             </td></tr></table>`
         )
