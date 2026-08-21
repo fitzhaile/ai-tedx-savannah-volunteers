@@ -72,10 +72,10 @@ export default async function CheckinPage({
                 key={k}
                 href={`/admin/checkin?d=${k}`}
                 className={cn(
-                  "rounded-full border px-3.5 py-1.5 text-xs font-bold whitespace-nowrap",
+                  "rounded-full border-2 px-3.5 py-1 text-xs font-extrabold whitespace-nowrap transition-colors",
                   k === day
-                    ? "border-ted bg-ted-soft text-ted-dark"
-                    : "border-line bg-card text-ink-soft hover:border-ink-faint"
+                    ? "border-ink bg-ink text-white"
+                    : "border-ink text-ink hover:bg-ink hover:text-white"
                 )}
               >
                 {formatInTimeZone(sample.startsAt, TZ, "EEE, MMM d")}

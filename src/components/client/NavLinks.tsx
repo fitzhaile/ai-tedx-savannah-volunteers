@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 
+/** Primary nav inside the black masthead: underline tabs, red for active. */
 export function NavLinks({
   links,
 }: {
@@ -11,7 +12,7 @@ export function NavLinks({
 }) {
   const pathname = usePathname();
   return (
-    <div className="flex gap-1 pb-2">
+    <div className="flex gap-6">
       {links.map((l) => {
         const active =
           l.href === "/admin" || l.href === "/board"
@@ -22,13 +23,15 @@ export function NavLinks({
             key={l.href}
             href={l.href}
             className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors",
-              active ? "bg-ink text-white" : "text-ink-soft hover:bg-line/70"
+              "-mb-px flex items-center gap-1.5 border-b-[3px] pt-1 pb-2.5 text-sm font-bold whitespace-nowrap transition-colors",
+              active
+                ? "border-ted text-white"
+                : "border-transparent text-white/60 hover:border-white/30 hover:text-white"
             )}
           >
             {l.label}
             {l.badge ? (
-              <span className="ml-1.5 inline-flex min-w-[18px] items-center justify-center rounded-full bg-ted px-1 text-[10px] font-bold text-white">
+              <span className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-ted px-1.5 text-[10px] font-extrabold text-white">
                 {l.badge}
               </span>
             ) : null}

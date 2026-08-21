@@ -2,22 +2,27 @@ import { cn } from "@/lib/cn";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
-/** Shared visual primitives. Server-safe (no hooks). */
+/**
+ * Shared visual primitives — the TEDx editorial system: white paper, black
+ * ink, the red. Display type carries hierarchy; boxes stay quiet.
+ * Server-safe (no hooks).
+ */
 
 const buttonBase =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ted";
+  "inline-flex items-center justify-center gap-2 rounded-full font-bold tracking-tight transition-all disabled:opacity-40 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ted active:scale-[0.98]";
 
 const buttonVariants = {
   primary: "bg-ted text-white hover:bg-ted-dark",
-  secondary: "bg-card text-ink border border-line hover:border-ink-faint shadow-xs",
-  ghost: "text-ink-soft hover:bg-line/60",
-  danger: "bg-card text-ted border border-ted/40 hover:bg-ted-soft",
+  secondary: "border-2 border-ink bg-transparent text-ink hover:bg-ink hover:text-white",
+  ghost: "text-ink-soft hover:bg-ink/5 hover:text-ink",
+  danger: "border-2 border-ted/60 bg-transparent text-ted hover:bg-ted hover:text-white",
+  inverse: "border-2 border-white bg-transparent text-white hover:bg-white hover:text-ink",
 } as const;
 
 const buttonSizes = {
-  sm: "text-sm px-3 py-1.5",
-  md: "text-sm px-4 py-2.5",
-  lg: "text-base px-5 py-3",
+  sm: "text-sm px-3.5 py-1.5",
+  md: "text-sm px-5 py-2.5",
+  lg: "text-base px-7 py-3.5",
 } as const;
 
 export type ButtonVariant = keyof typeof buttonVariants;
@@ -55,19 +60,16 @@ export function ButtonLink({
 
 export function Card({ className, ...props }: ComponentProps<"div">) {
   return (
-    <div
-      className={cn("rounded-xl border border-line bg-card p-5 shadow-xs", className)}
-      {...props}
-    />
+    <div className={cn("rounded-lg border border-line bg-card p-5", className)} {...props} />
   );
 }
 
 const badgeTones = {
-  neutral: "bg-line/60 text-ink-soft",
-  red: "bg-ted-soft text-ted-dark",
-  green: "bg-go-soft text-go",
-  amber: "bg-warn-soft text-warn",
-  blue: "bg-info-soft text-info",
+  neutral: "bg-ink/[0.06] text-ink",
+  red: "bg-ted text-white",
+  green: "bg-go text-white",
+  amber: "bg-warn text-white",
+  blue: "bg-info text-white",
 } as const;
 
 export function Badge({
@@ -78,7 +80,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap",
+        "inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[11px] font-bold tracking-wide whitespace-nowrap uppercase",
         badgeTones[tone],
         className
       )}
@@ -88,7 +90,7 @@ export function Badge({
 }
 
 const inputStyles =
-  "w-full rounded-lg border border-line bg-card px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-ted focus:outline-none focus:ring-2 focus:ring-ted/15";
+  "w-full rounded-md border-2 border-line bg-card px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint transition-colors focus:border-ink focus:outline-none";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(inputStyles, className)} {...props} />;
@@ -104,48 +106,95 @@ export function Select({ className, ...props }: ComponentProps<"select">) {
 
 export function Label({ className, ...props }: ComponentProps<"label">) {
   return (
-    <label className={cn("mb-1.5 block text-sm font-semibold text-ink", className)} {...props} />
+    <label className={cn("mb-1.5 block text-sm font-bold text-ink", className)} {...props} />
   );
 }
 
 export function FieldHint({ children }: { children: ReactNode }) {
-  return <p className="mt-1 text-xs text-ink-faint">{children}</p>;
+  return <p className="mt-1.5 text-xs leading-relaxed text-ink-faint">{children}</p>;
+}
+
+/** Red uppercase kicker line used above headlines. */
+export function Eyebrow({ className, ...props }: ComponentProps<"p">) {
+  return <p className={cn("eyebrow text-ted", className)} {...props} />;
 }
 
 export function PageHeader({
+  eyebrow,
   title,
   subtitle,
   action,
 }: {
+  eyebrow?: ReactNode;
   title: ReactNode;
   subtitle?: ReactNode;
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink">{title}</h1>
-        {subtitle ? <p className="mt-1 text-sm text-ink-soft">{subtitle}</p> : null}
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-5">
+      <div className="min-w-0">
+        {eyebrow ? <Eyebrow className="mb-2">{eyebrow}</Eyebrow> : null}
+        <h1 className="font-display text-3xl font-extrabold text-ink sm:text-4xl">{title}</h1>
+        {subtitle ? <p className="mt-2 max-w-2xl text-sm text-ink-soft">{subtitle}</p> : null}
       </div>
-      {action}
+      {action ? <div className="shrink-0">{action}</div> : null}
+    </div>
+  );
+}
+
+/** Section heading with the editorial top rule. */
+export function SectionTitle({
+  children,
+  aside,
+  className,
+}: {
+  children: ReactNode;
+  aside?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("mb-4 flex items-end justify-between gap-3 border-t-4 border-ink pt-3", className)}>
+      <h2 className="font-display text-xl font-extrabold text-ink">{children}</h2>
+      {aside}
     </div>
   );
 }
 
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-line bg-card/60 px-6 py-10 text-center">
-      <p className="text-sm font-semibold text-ink-soft">{title}</p>
-      {hint ? <p className="mt-1 text-sm text-ink-faint">{hint}</p> : null}
+    <div className="border-t border-line px-2 py-10 text-center">
+      <span className="font-display text-2xl font-extrabold text-ted">—</span>
+      <p className="mt-1 font-display text-base font-bold text-ink">{title}</p>
+      {hint ? <p className="mx-auto mt-1 max-w-sm text-sm text-ink-soft">{hint}</p> : null}
     </div>
   );
 }
 
-export function Wordmark({ sub = "Volunteers" }: { sub?: string }) {
+export function Wordmark({
+  sub = "Volunteers",
+  inverse = false,
+}: {
+  sub?: string;
+  inverse?: boolean;
+}) {
   return (
-    <span className="text-lg font-extrabold tracking-tight text-ink">
-      TED<span className="text-ted">x</span>Savannah{" "}
-      <span className="font-medium text-ink-soft">{sub}</span>
+    <span
+      className={cn(
+        "inline-flex items-baseline gap-2 font-display whitespace-nowrap",
+        inverse ? "text-white" : "text-ink"
+      )}
+    >
+      <span className="text-xl leading-tight font-extrabold tracking-tight">
+        TED<span className="text-ted">x</span>Savannah
+      </span>
+      <span
+        className={cn(
+          "text-[10px] leading-tight font-extrabold tracking-[0.2em] uppercase",
+          inverse ? "text-white/60" : "text-ink-faint"
+        )}
+      >
+        {sub}
+      </span>
     </span>
   );
 }

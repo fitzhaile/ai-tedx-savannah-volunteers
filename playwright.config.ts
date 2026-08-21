@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "node:fs";
 import { loadDotEnv } from "./src/test/env";
+
+const SANDBOX_CHROMIUM = "/opt/pw-browsers/chromium";
 
 loadDotEnv();
 
@@ -26,8 +29,10 @@ export default defineConfig({
         ...devices["iPhone 13"],
         defaultBrowserType: "chromium",
         browserName: "chromium",
-        // The dev container pre-installs chromium here; avoids re-downloading.
-        launchOptions: { executablePath: "/opt/pw-browsers/chromium" },
+        // Cloud sandboxes pre-install chromium here; elsewhere use Playwright's own.
+        launchOptions: existsSync(SANDBOX_CHROMIUM)
+          ? { executablePath: SANDBOX_CHROMIUM }
+          : undefined,
       },
     },
   ],

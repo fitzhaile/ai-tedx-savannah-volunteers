@@ -17,7 +17,8 @@ npm run db:migrate   # prisma migrate dev
 npm run db:seed      # rebuild the demo season (keeps manager account)
 ```
 
-Local Postgres for dev runs on port 5433 (`DATABASE_URL` in `.env`).
+Local Postgres for dev: whatever `DATABASE_URL` in `.env` points at (Homebrew
+Postgres on the default port 5432 works; `.env.example` has the shape).
 
 ## Hard rules
 
@@ -72,6 +73,11 @@ Local Postgres for dev runs on port 5433 (`DATABASE_URL` in `.env`).
   `unreadForManager` only on FROM_MEMBER rows, `unreadForMember` only on
   FROM_TEAM rows; viewing clears via POST server actions (never GET).
 - UI text is warm and plain-spoken; volunteers are thanked, never blamed.
-- TEDx red `#EB0028` = `text-ted`/`bg-ted`; see `src/app/globals.css` tokens.
+- Visual system ("TEDx editorial"): white paper, black ink, TEDx red `#EB0028`
+  (`text-ted`/`bg-ted`); Bricolage Grotesque for display type (`font-display`,
+  applied to h1–h3 globally), Inter for body. Prefer typographic hierarchy,
+  hairlines, and `border-t-4 border-ink` section rules over boxed cards. Tokens
+  live in `src/app/globals.css`; primitives (`PageHeader`, `SectionTitle`,
+  `Eyebrow`, `Badge`, pill `Button`s) in `src/components/ui.tsx`.
 - Commit messages: plain descriptions only — no Co-Authored-By lines,
   session links, or other AI-attribution footers.
