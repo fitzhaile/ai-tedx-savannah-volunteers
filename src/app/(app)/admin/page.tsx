@@ -127,16 +127,13 @@ export default async function AdminDashboard() {
             ) : (
               <ul className="divide-y">
                 {understaffed.slice(0, 8).map((s) => (
-                  <li key={s.id}>
-                    <Link
-                      href={`/admin/shifts/${s.id}`}
-                      className="group flex items-center gap-4 py-3 first:pt-0 last:pb-0"
-                    >
+                  <li key={s.id} className="py-4 first:pt-0 last:pb-0">
+                    <Link href={`/admin/shifts/${s.id}`} className="group flex items-center gap-4">
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-foreground group-hover:text-ted">
                           {s.title}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {fmtShiftWhen(s.startsAt, s.endsAt)}
                           {s.owner ? ` · ${s.owner.name}` : ""}
                         </p>
@@ -169,7 +166,7 @@ export default async function AdminDashboard() {
             ) : (
               <ul className="divide-y">
                 {cancellations.map((c) => (
-                  <li key={c.id} className="py-3 first:pt-0 last:pb-0">
+                  <li key={c.id} className="py-4 first:pt-0 last:pb-0">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground">
