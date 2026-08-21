@@ -43,20 +43,25 @@ test("manager sends a thread message from the contact record", async ({ page }) 
 test("member sees the unread badge, reads the thread, and replies in-app", async ({ page }) => {
   await page.goto(await loginUrl(memberId, "/shifts"));
 
-  // Nav shows Messages with an unread count.
+  // The sidebar (a drawer on phones) shows Messages with an unread count.
+  const openSidebar = () => page.getByRole("button", { name: /toggle sidebar/i }).click();
+  await openSidebar();
   const messagesLink = page.getByRole("link", { name: /Messages/ });
   await expect(messagesLink).toBeVisible();
-  await expect(messagesLink).toContainText("1");
+  await expect(messagesLink.locator("..")).toContainText("1");
 
   await messagesLink.click();
+  await page.keyboard.press("Escape");
   await expect(page.getByText("Hi Tess — can you take Saturday morning?")).toBeVisible();
 
-  // Viewing marked it read: navigate away and the badge is gone.
-  await page.getByRole("link", { name: "Shifts", exact: true }).click();
-  await expect(page.getByRole("link", { name: /Messages/ })).not.toContainText("1");
+  // Viewing marked it read: the badge is gone.
+  await page.goto("/shifts");
+  await openSidebar();
+  await expect(page.getByRole("link", { name: /Messages/ }).locator("..")).not.toContainText("1");
+  await page.keyboard.press("Escape");
 
   // Reply in-app.
-  await page.getByRole("link", { name: /Messages/ }).click();
+  await page.goto("/me/messages");
   await page.getByPlaceholder("Write to the volunteer manager…").fill("Yes! Sign me up.");
   await page.getByRole("button", { name: "Send" }).click();
   await expect(page.getByText("Yes! Sign me up.")).toBeVisible();

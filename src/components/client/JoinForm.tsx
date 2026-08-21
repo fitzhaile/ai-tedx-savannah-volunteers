@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { joinAction, type AuthFormState } from "@/lib/actions/auth-actions";
-import { Button, Input, Label, FieldHint } from "@/components/ui";
+import { Button, Input, Label, FieldHint } from "@/components/primitives";
 
 export function JoinForm() {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(joinAction, {});
@@ -21,8 +21,8 @@ export function JoinForm() {
   return (
     <form action={action} className="space-y-4">
       <div>
-        <Label htmlFor="name">Your name</Label>
-        <Input id="name" name="name" placeholder="First and last name" required maxLength={80} />
+        <Label htmlFor="name">First and last name</Label>
+        <Input id="name" name="name" placeholder="e.g. Daphne Kimura" required maxLength={80} />
       </div>
       <div>
         <Label htmlFor="email">Email</Label>
@@ -30,8 +30,8 @@ export function JoinForm() {
         <FieldHint>We&apos;ll use this to sign you in — no password needed.</FieldHint>
       </div>
       <div>
-        <Label htmlFor="phone">Phone (optional)</Label>
-        <Input id="phone" name="phone" type="tel" placeholder="912-555-0123" maxLength={30} />
+        <Label htmlFor="phone">Mobile phone</Label>
+        <Input id="phone" name="phone" type="tel" placeholder="912-555-0123" required maxLength={30} />
         <FieldHint>Only used by the volunteer team for day-of coordination.</FieldHint>
       </div>
       {state.error ? <p className="text-sm font-semibold text-ted">{state.error}</p> : null}

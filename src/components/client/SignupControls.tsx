@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Badge, Textarea, Label, FieldHint } from "@/components/ui";
+import { toast } from "sonner";
+import { Button, Badge, Textarea, Label, FieldHint } from "@/components/primitives";
 import { Modal } from "@/components/client/Modal";
 import {
   signUpForShift,
@@ -31,29 +32,26 @@ export function SignupControls({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [note, setNote] = useState("");
 
   const handleResult = (r: SignupResult) => {
     if (r.ok) {
-      setMessage(
-        r.status === "confirmed" ? "You're on the roster! Check your email." : "You're on the waitlist — we'll email you if a spot opens."
-      );
+      if (r.status === "confirmed") toast.success(`You're on ${shiftTitle}`, { description: "Check your email for the details." });
+      else toast.info(`You're on the waitlist for ${shiftTitle}`, { description: "We'll email you if a spot opens." });
     } else if (r.reason === "full") {
-      setMessage("That shift just filled up — you can join the waitlist.");
+      toast.warning("That shift just filled up", { description: "You can join the waitlist instead." });
     } else if (r.reason === "past") {
-      setMessage("This shift has already ended.");
+      toast.error("This shift has already ended.");
     } else if (r.reason === "already") {
-      setMessage("You're already on this shift.");
+      toast.info("You're already on this shift.");
     } else {
-      setMessage("This shift isn't available right now.");
+      toast.error("This shift isn't available right now.");
     }
     router.refresh();
   };
 
   const act = (fn: () => Promise<SignupResult>) => {
-    setMessage(null);
     startTransition(async () => handleResult(await fn()));
   };
 
@@ -62,7 +60,8 @@ export function SignupControls({
       const r = await cancelMySignup(my!.id, note);
       setCancelOpen(false);
       setNote("");
-      setMessage(r.ok ? "You've been taken off this shift." : r.error);
+      if (r.ok) toast.success(`You're off ${shiftTitle}`, { description: "Thanks for letting us know early." });
+      else toast.error(r.error);
       router.refresh();
     });
   };
@@ -105,7 +104,6 @@ export function SignupControls({
           {pending ? "Signing up…" : "Sign up"}
         </Button>
       )}
-      {message ? <p className="max-w-52 text-right text-xs text-ink-soft">{message}</p> : null}
 
       <Modal
         open={cancelOpen}

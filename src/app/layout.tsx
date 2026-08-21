@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Inter } from "next/font/google";
+import { Bricolage_Grotesque, Geist } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-// Display face: confident editorial grotesk for headlines, numerals, wordmark.
+// UI face: Geist for everything interactive and dense.
+const sans = Geist({ subsets: ["latin"], variable: "--font-sans" });
+
+// Display face: Bricolage Grotesque for headlines, big numerals, the wordmark.
 const display = Bricolage_Grotesque({
   variable: "--font-display",
   subsets: ["latin"],
   axes: ["opsz", "wdth"],
-});
-
-// Body face: quiet and highly legible on phones.
-const body = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -29,8 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${display.variable} ${body.variable} antialiased`}>{children}</body>
+    <html lang="en" className={`${sans.variable} ${display.variable} font-sans`}>
+      {/* Browser extensions add attributes to <body> before React loads; not our markup. */}
+      <body className="antialiased" suppressHydrationWarning>
+        {children}
+        <Toaster position="bottom-center" richColors closeButton />
+      </body>
     </html>
   );
 }

@@ -8,7 +8,7 @@ import {
   resendBoardInvite,
   type FormState,
 } from "@/lib/actions/admin-actions";
-import { Button, Input, Label, FieldHint } from "@/components/ui";
+import { Button, Input, Label, FieldHint } from "@/components/primitives";
 
 export function AddBoardForm() {
   const router = useRouter();

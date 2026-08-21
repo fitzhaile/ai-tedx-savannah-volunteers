@@ -1,15 +1,25 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
-import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/ui";
+import { PageHeader, Badge, ButtonLink, EmptyState } from "@/components/primitives";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { fmtShiftWhen } from "@/lib/dates";
-import { cn } from "@/lib/cn";
 
 export const metadata = { title: "Shifts · Admin" };
 export const dynamic = "force-dynamic";
 
 const FILTERS = [
-  { key: "all", label: "All" },
+  { key: "all", label: "Upcoming" },
   { key: "understaffed", label: "Needs people" },
   { key: "EVENT", label: "Event" },
   { key: "COACHING", label: "Coaching" },
@@ -35,8 +45,7 @@ export default async function AdminShiftsPage({
   const rows = shifts
     .map((s) => ({
       ...s,
-      filled: s.signups.filter((x) => x.status === "CONFIRMED" || x.status === "CHECKED_IN")
-        .length,
+      filled: s.signups.filter((x) => x.status === "CONFIRMED" || x.status === "CHECKED_IN").length,
       waitlisted: s.signups.filter((x) => x.status === "WAITLISTED").length,
       isPast: s.endsAt < currentTime,
     }))
@@ -57,52 +66,67 @@ export default async function AdminShiftsPage({
         action={<ButtonLink href="/admin/shifts/new" size="sm">+ New shift</ButtonLink>}
       />
 
-      <div className="mb-4 flex gap-2 overflow-x-auto">
-        {FILTERS.map((f) => (
-          <Link
-            key={f.key}
-            href={f.key === "all" ? "/admin/shifts" : `/admin/shifts?filter=${f.key}`}
-            className={cn(
-              "rounded-full border-2 px-3.5 py-1 text-xs font-extrabold whitespace-nowrap transition-colors",
-              filter === f.key
-                ? "border-ink bg-ink text-white"
-                : "border-ink text-ink hover:bg-ink hover:text-white"
-            )}
-          >
-            {f.label}
-          </Link>
-        ))}
-      </div>
+      <Tabs value={filter} className="mb-4">
+        <TabsList className="flex h-auto w-full flex-nowrap justify-start overflow-x-auto">
+          {FILTERS.map((f) => (
+            <TabsTrigger key={f.key} value={f.key} asChild>
+              <Link href={f.key === "all" ? "/admin/shifts" : `/admin/shifts?filter=${f.key}`}>
+                {f.label}
+              </Link>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {rows.length === 0 ? (
         <EmptyState title="No shifts match this filter" />
       ) : (
-        <div className="border-b border-line">
-          {rows.map((s) => (
-            <Link key={s.id} href={`/admin/shifts/${s.id}`} className="block">
-              <Card className="flex flex-wrap items-center justify-between gap-3 rounded-none border-x-0 border-t-0 px-0 py-3.5 transition-colors hover:bg-paper-2">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-bold text-ink">{s.title}</p>
-                    {s.category === "COACHING" ? <Badge tone="blue">Coaching</Badge> : null}
-                    {!s.isPublished ? <Badge tone="amber">Hidden</Badge> : null}
-                    {!s.slot && s.category !== "COACHING" ? <Badge>Custom time</Badge> : null}
-                  </div>
-                  <p className="text-xs text-ink-soft">
+        <Card className="gap-0 overflow-hidden py-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Shift</TableHead>
+                <TableHead className="hidden md:table-cell">When</TableHead>
+                <TableHead className="hidden lg:table-cell">Lead</TableHead>
+                <TableHead className="w-40">Staffing</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((s) => (
+                <TableRow key={s.id}>
+                  <TableCell>
+                    <Link href={`/admin/shifts/${s.id}`} className="block">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-foreground">{s.title}</span>
+                        {s.category === "COACHING" ? <Badge tone="blue">Coaching</Badge> : null}
+                        {!s.isPublished ? <Badge tone="amber">Hidden</Badge> : null}
+                        {!s.slot && s.category !== "COACHING" ? <Badge>Custom time</Badge> : null}
+                        {s.waitlisted > 0 ? <Badge tone="amber">+{s.waitlisted} waitlist</Badge> : null}
+                      </span>
+                      <span className="block text-xs text-muted-foreground md:hidden">
+                        {fmtShiftWhen(s.startsAt, s.endsAt)}
+                      </span>
+                    </Link>
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">
                     {fmtShiftWhen(s.startsAt, s.endsAt)}
-                    {s.owner ? ` · ${s.owner.name}` : ""}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {s.waitlisted > 0 ? <Badge tone="amber">+{s.waitlisted} waitlist</Badge> : null}
-                  <Badge tone={s.filled >= s.capacity ? "green" : "red"}>
-                    {s.filled}/{s.capacity} filled
-                  </Badge>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    {s.owner?.name ?? "—"}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Progress value={Math.round((s.filled / s.capacity) * 100)} className="h-1.5 w-20" />
+                      <span className={"text-xs font-semibold " + (s.filled >= s.capacity ? "text-go" : "text-ted")}>
+                        {s.filled}/{s.capacity}
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
       )}
     </div>
   );

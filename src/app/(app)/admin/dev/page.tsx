@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getSettings, now } from "@/lib/clock";
-import { PageHeader } from "@/components/ui";
+import { PageHeader } from "@/components/primitives";
 import { TimeTravelPanel } from "@/components/client/TimeTravelPanel";
 import { fmtDateShort, fmtTime, toInputValue } from "@/lib/dates";
 

@@ -7,7 +7,7 @@ import {
   previewAudienceAction,
   type SendMessageState,
 } from "@/lib/actions/message-actions";
-import { Button, Input, Label, Select, Textarea, FieldHint, Card } from "@/components/ui";
+import { Button, Input, Label, Select, Textarea, FieldHint, Card } from "@/components/primitives";
 import { cn } from "@/lib/cn";
 
 export interface ComposerShiftOption {

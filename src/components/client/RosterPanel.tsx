@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Badge, Textarea, Label, Select, FieldHint } from "@/components/ui";
+import { Button, Badge, Textarea, Label, Select, FieldHint } from "@/components/primitives";
 import { Modal } from "@/components/client/Modal";
 import {
   adminAddToShift,

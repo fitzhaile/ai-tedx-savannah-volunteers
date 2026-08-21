@@ -1,4 +1,4 @@
-import { Card, PageHeader } from "@/components/ui";
+import { Card, PageHeader } from "@/components/primitives";
 import { ShiftForm } from "@/components/client/ShiftForm";
 import { getSlotOptions, getBoardOptions } from "@/lib/queries/admin";
 

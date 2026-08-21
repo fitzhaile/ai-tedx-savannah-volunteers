@@ -2,7 +2,7 @@
 
 Volunteer management app for TEDxSavannah (event: May 15, 2027). One manager,
 ~15 board members, ~35 volunteers. Next.js 15 (App Router, Server Actions),
-Prisma 6 + Postgres, Tailwind v4, no component library. Deployed on Vercel +
+Prisma 6 + Postgres, Tailwind v4, shadcn/ui (Radix) components. Deployed on Vercel +
 Neon; email via the manager's Gmail (Nodemailer).
 
 ## Commands
@@ -60,8 +60,11 @@ Postgres on the default port 5432 works; `.env.example` has the shape).
 - `src/app/(public)` — landing, /join, /signin; `src/app/a/[token]` — link sign-in
 - `src/app/(app)` — authed: /shifts, /me, /board, /admin/**
 - `src/app/api/cron/tick` — scheduler heartbeat (CRON_SECRET)
-- `src/components/ui.tsx` — the design system primitives; `components/client/`
-  — interactive pieces
+- `src/components/ui/` — generated shadcn/ui components (edit freely, they're
+  ours); `src/components/primitives.tsx` — the app's vocabulary on top of them
+  (Button/Badge tone mapping, PageHeader, Wordmark…); `components/client/` —
+  interactive pieces; `components/AppShell.tsx` + `client/AppSidebar.tsx` — the
+  sidebar shell that also carries admin navigation
 
 ## Conventions
 
@@ -74,11 +77,11 @@ Postgres on the default port 5432 works; `.env.example` has the shape).
   `unreadForManager` only on FROM_MEMBER rows, `unreadForMember` only on
   FROM_TEAM rows; viewing clears via POST server actions (never GET).
 - UI text is warm and plain-spoken; volunteers are thanked, never blamed.
-- Visual system ("TEDx editorial"): white paper, black ink, TEDx red `#EB0028`
-  (`text-ted`/`bg-ted`); Bricolage Grotesque for display type (`font-display`,
-  applied to h1–h3 globally), Inter for body. Prefer typographic hierarchy,
-  hairlines, and `border-t-4 border-ink` section rules over boxed cards. Tokens
-  live in `src/app/globals.css`; primitives (`PageHeader`, `SectionTitle`,
-  `Eyebrow`, `Badge`, pill `Button`s) in `src/components/ui.tsx`.
+- Visual system: shadcn/ui themed to TEDx — white paper, near-black ink, red
+  `#EB0028` as `--primary`, a black sidebar with a red active marker. Bricolage
+  Grotesque for display type (`font-display`, applied to h1–h3 globally), Geist
+  for UI text. Semantic tokens (`--primary`, `--muted`, `--sidebar`…) and brand
+  utilities (`text-ted`, `bg-ink`…) live in `src/app/globals.css`. Add new
+  shadcn components with `npx shadcn@latest add <name>`.
 - Commit messages: plain descriptions only — no Co-Authored-By lines,
   session links, or other AI-attribution footers.

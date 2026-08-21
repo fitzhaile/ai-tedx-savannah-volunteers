@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getSettings } from "@/lib/clock";
-import { Card, PageHeader } from "@/components/ui";
+import { Card, PageHeader } from "@/components/primitives";
 import { ThreadPanel } from "@/components/client/ThreadPanel";
 import { getThread } from "@/lib/queries/threads";
 

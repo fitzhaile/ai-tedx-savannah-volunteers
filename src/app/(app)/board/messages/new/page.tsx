@@ -1,7 +1,7 @@
 import { requireBoard } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
-import { PageHeader, Card } from "@/components/ui";
+import { PageHeader, Card } from "@/components/primitives";
 import { MessageComposer } from "@/components/client/MessageComposer";
 import { fmtShiftWhen } from "@/lib/dates";
 

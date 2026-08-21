@@ -30,10 +30,23 @@ async function ensureManagerUser(email: string): Promise<void> {
   });
 }
 
+const fullName = z
+  .string()
+  .trim()
+  .min(2, "Please enter your name")
+  .max(80)
+  .refine((v) => v.split(/\s+/).length >= 2, "Please enter both your first and last name");
+
+const phone = z
+  .string()
+  .trim()
+  .min(7, "Please enter a phone number we can reach you at")
+  .max(30);
+
 const joinSchema = z.object({
-  name: z.string().trim().min(2, "Please enter your name").max(80),
+  name: fullName,
   email: z.string().trim().email("Please enter a valid email address").max(120),
-  phone: z.string().trim().max(30).optional(),
+  phone,
 });
 
 /**
@@ -48,7 +61,7 @@ export async function joinAction(
   const parsed = joinSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
-    phone: formData.get("phone") || undefined,
+    phone: formData.get("phone") ?? "",
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form" };
@@ -63,7 +76,7 @@ export async function joinAction(
   }
 
   const user = await prisma.user.create({
-    data: { email, name: parsed.data.name, phone: parsed.data.phone ?? null },
+    data: { email, name: parsed.data.name, phone: parsed.data.phone },
   });
   await createSession(user.id);
   await notifyWelcome(user);
@@ -96,8 +109,8 @@ export async function signOutAction(): Promise<void> {
 }
 
 const profileSchema = z.object({
-  name: z.string().trim().min(2, "Please enter your name").max(80),
-  phone: z.string().trim().max(30).optional(),
+  name: fullName,
+  phone,
 });
 
 export async function updateProfileAction(
@@ -108,14 +121,14 @@ export async function updateProfileAction(
   const user = await requireUser();
   const parsed = profileSchema.safeParse({
     name: formData.get("name"),
-    phone: formData.get("phone") || undefined,
+    phone: formData.get("phone") ?? "",
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form" };
   }
   await prisma.user.update({
     where: { id: user.id },
-    data: { name: parsed.data.name, phone: parsed.data.phone ?? null },
+    data: { name: parsed.data.name, phone: parsed.data.phone },
   });
   return { sent: true };
 }

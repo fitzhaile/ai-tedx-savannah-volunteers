@@ -1,7 +1,11 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
+/* Brand tokens (also usable as utilities: text-ted, bg-ink, border-line…). */
 @theme {
-  /* TEDx palette — white, black, and the red. */
   --color-ted: #eb0028;
   --color-ted-dark: #b8001f;
   --color-ted-soft: #fde8ec;
@@ -11,7 +15,6 @@
   --color-ink-faint: #9a9aa1;
   --color-paper: #ffffff;
   --color-paper-2: #f5f5f3;
-  --color-card: #ffffff;
   --color-line: #e4e4e1;
 
   --color-go: #0f8a5f;
@@ -22,15 +25,126 @@
   --color-info-soft: #e5ecfb;
 }
 
+/* shadcn semantic tokens mapped to Tailwind. */
 @theme inline {
-  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-display), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-display);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* The TEDx theme: white paper, near-black ink, the red as primary;
+   a black sidebar with a red active marker. */
+:root {
+  --background: #ffffff;
+  --foreground: #0b0b0c;
+  --card: #ffffff;
+  --card-foreground: #0b0b0c;
+  --popover: #ffffff;
+  --popover-foreground: #0b0b0c;
+  --primary: #eb0028;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f3;
+  --secondary-foreground: #0b0b0c;
+  --muted: #f5f5f3;
+  --muted-foreground: #5a5a60;
+  --accent: #fde8ec;
+  --accent-foreground: #b8001f;
+  --destructive: #b8001f;
+  --border: #e4e4e1;
+  --input: #e4e4e1;
+  --ring: #eb0028;
+  --chart-1: #eb0028;
+  --chart-2: #0b0b0c;
+  --chart-3: #5a5a60;
+  --chart-4: #9a9aa1;
+  --chart-5: #e4e4e1;
+  --radius: 0.625rem;
+  --sidebar: #0b0b0c;
+  --sidebar-foreground: #f5f5f3;
+  --sidebar-primary: #eb0028;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1f1f22;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2a2a2e;
+  --sidebar-ring: #eb0028;
+}
+
+.dark {
+  --background: #0b0b0c;
+  --foreground: #f5f5f3;
+  --card: #151518;
+  --card-foreground: #f5f5f3;
+  --popover: #151518;
+  --popover-foreground: #f5f5f3;
+  --primary: #eb0028;
+  --primary-foreground: #ffffff;
+  --secondary: #1f1f22;
+  --secondary-foreground: #f5f5f3;
+  --muted: #1f1f22;
+  --muted-foreground: #9a9aa1;
+  --accent: #2a1215;
+  --accent-foreground: #ff5c78;
+  --destructive: #ff5c78;
+  --border: #2a2a2e;
+  --input: #2a2a2e;
+  --ring: #eb0028;
+  --sidebar: #0b0b0c;
+  --sidebar-foreground: #f5f5f3;
+  --sidebar-primary: #eb0028;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1f1f22;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2a2a2e;
+  --sidebar-ring: #eb0028;
 }
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
   body {
-    background: var(--color-paper);
-    color: var(--color-ink);
+    @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
   }
   h1,
@@ -43,11 +157,15 @@
     background: var(--color-ted);
     color: #fff;
   }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @utility eyebrow {
   font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
