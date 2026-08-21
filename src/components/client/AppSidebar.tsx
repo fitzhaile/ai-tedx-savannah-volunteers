@@ -28,7 +28,6 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 import { Wordmark } from "@/components/primitives";
 
@@ -62,7 +61,7 @@ export function AppSidebar({ groups, footer }: { groups: NavGroup[]; footer: Rea
   const pathname = usePathname();
   return (
     <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="px-4 py-4">
+      <SidebarHeader className="px-4 py-4 pr-6">
         <Link href="/">
           <Wordmark inverse />
         </Link>
@@ -102,7 +101,6 @@ export function AppSidebar({ groups, footer }: { groups: NavGroup[]; footer: Rea
         ))}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border px-4 py-3">{footer}</SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }

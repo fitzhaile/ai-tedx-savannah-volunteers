@@ -78,7 +78,7 @@ export async function AppShell({ user, children }: { user: User; children: React
   );
 
   return (
-    <SidebarProvider>
+    <SidebarProvider style={{ "--sidebar-width": "17.5rem" } as React.CSSProperties}>
       <AppSidebar groups={groups} footer={footer} />
       <SidebarInset>
         {settings.simulatedNow ? (
