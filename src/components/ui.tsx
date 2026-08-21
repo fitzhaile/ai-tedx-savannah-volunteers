@@ -178,13 +178,18 @@ export function Wordmark({
   inverse?: boolean;
 }) {
   return (
-    <span className={cn("font-display leading-none", inverse ? "text-white" : "text-ink")}>
-      <span className="text-xl font-extrabold tracking-tight">
+    <span
+      className={cn(
+        "inline-flex items-baseline gap-2 font-display whitespace-nowrap",
+        inverse ? "text-white" : "text-ink"
+      )}
+    >
+      <span className="text-xl leading-tight font-extrabold tracking-tight">
         TED<span className="text-ted">x</span>Savannah
       </span>
       <span
         className={cn(
-          "ml-2 align-[3px] text-[10px] font-extrabold tracking-[0.2em] uppercase",
+          "text-[10px] leading-tight font-extrabold tracking-[0.2em] uppercase",
           inverse ? "text-white/60" : "text-ink-faint"
         )}
       >
