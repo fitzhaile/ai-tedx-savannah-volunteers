@@ -189,7 +189,9 @@ export function Wordmark({
       </span>
       <span
         className={cn(
-          "text-[10px] leading-tight font-extrabold tracking-[0.2em] uppercase",
+          // Body font here on purpose: the display face's optical sizing clips
+          // cap tops at this size.
+          "font-sans text-[11px] leading-none font-extrabold tracking-[0.18em] uppercase",
           inverse ? "text-white/60" : "text-ink-faint"
         )}
       >
