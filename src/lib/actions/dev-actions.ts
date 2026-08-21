@@ -156,19 +156,21 @@ export async function resetForProductionAction(): Promise<string> {
 export async function sendSampleEmailsAction(): Promise<string> {
   const manager = await requireManager();
   assertEnabled();
-  let sent = 0;
-  let failed = 0;
-  for (const sample of SAMPLE_EMAILS) {
-    const log = await sendNow({
-      kind: sample.kind,
-      toEmail: manager.email,
-      userId: manager.id,
-      linkPath: sample.linkPath,
-      params: sample.params,
-    });
-    if (log?.status === "SENT") sent += 1;
-    else failed += 1;
-  }
+  // Send in parallel so the whole batch fits comfortably inside the
+  // serverless time limit (Gmail SMTP is ~1–2s per message).
+  const results = await Promise.all(
+    SAMPLE_EMAILS.map((sample) =>
+      sendNow({
+        kind: sample.kind,
+        toEmail: manager.email,
+        userId: manager.id,
+        linkPath: sample.linkPath,
+        params: sample.params,
+      })
+    )
+  );
+  const sent = results.filter((log) => log?.status === "SENT").length;
+  const failed = results.length - sent;
   revalidatePath("/admin/messages");
   const where = (process.env.EMAIL_TRANSPORT ?? "console") === "gmail" ? manager.email : "the outbox only (console mode)";
   return `Sent ${sent} of ${SAMPLE_EMAILS.length} sample emails to ${where}${failed ? ` — ${failed} failed; see Admin → Messages` : ""}.`;

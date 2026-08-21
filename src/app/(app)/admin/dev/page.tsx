@@ -7,6 +7,8 @@ import { fmtDateShort, fmtTime, toInputValue } from "@/lib/dates";
 
 export const metadata = { title: "Time travel · Admin" };
 export const dynamic = "force-dynamic";
+// The panel's actions (sample emails, Gmail sync) can outlast the default limit.
+export const maxDuration = 60;
 
 export default async function DevPage() {
   if (process.env.ENABLE_TIME_TRAVEL !== "true") notFound();
