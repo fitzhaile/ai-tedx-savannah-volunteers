@@ -9,7 +9,7 @@ import type { ComponentProps, ReactNode } from "react";
  */
 
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full font-bold tracking-tight transition-all disabled:opacity-40 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ted active:scale-[0.98]";
+  "inline-flex items-center justify-center gap-2 rounded-full font-bold tracking-tight transition-all motion-reduce:transition-none disabled:opacity-40 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ted active:scale-[0.98] motion-reduce:active:scale-100";
 
 const buttonVariants = {
   primary: "bg-ted text-white hover:bg-ted-dark",
@@ -163,9 +163,8 @@ export function SectionTitle({
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="border-t border-line px-2 py-10 text-center">
-      <span className="font-display text-2xl font-extrabold text-ted">—</span>
-      <p className="mt-1 font-display text-base font-bold text-ink">{title}</p>
-      {hint ? <p className="mx-auto mt-1 max-w-sm text-sm text-ink-soft">{hint}</p> : null}
+      <p className="font-display text-lg font-extrabold text-ink">{title}</p>
+      {hint ? <p className="mx-auto mt-1.5 max-w-sm text-sm text-ink-soft">{hint}</p> : null}
     </div>
   );
 }

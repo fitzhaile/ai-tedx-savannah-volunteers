@@ -51,3 +51,29 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
+
+/* One orchestrated moment: the hero settles in on load. Off for reduced motion. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility rise {
+  animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility rise-late {
+  animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.12s both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

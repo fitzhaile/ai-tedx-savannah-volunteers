@@ -17,7 +17,7 @@ export function SubNav({ links }: { links: { href: string; label: string; exact?
             key={l.href}
             href={l.href}
             className={cn(
-              "-mb-px border-b-2 pb-2.5 text-sm font-bold whitespace-nowrap transition-colors",
+              "-mb-px rounded-sm border-b-2 pb-2.5 text-sm font-bold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ted",
               active ? "border-ink text-ink" : "border-transparent text-ink-faint hover:text-ink"
             )}
           >

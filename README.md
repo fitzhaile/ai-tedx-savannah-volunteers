@@ -260,8 +260,9 @@ season loads from a button. No terminal required.
 ## Design
 
 A "TEDx editorial" system: white paper, near-black ink, TEDx red `#EB0028` used sparingly.
-**Bricolage Grotesque** carries display type (headlines, big numerals, the wordmark); **Inter**
-carries body text. Hierarchy comes from type, hairlines, and thick black section rules rather
+**Bricolage Grotesque** carries display type (headlines, big numerals, the wordmark); **IBM Plex
+Sans** carries body text. Capacity is drawn as one dot per spot — a nod to the red circle TED
+speakers stand in. Hierarchy comes from type, hairlines, and thick black section rules rather
 than boxed cards; buttons are pills; tags are small uppercase. Tokens live in
 `src/app/globals.css`, primitives in `src/components/ui.tsx`. Email templates
 (`src/lib/email/templates.ts`) mirror the look within what mail clients allow (inline styles,

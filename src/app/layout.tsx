@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Inter } from "next/font/google";
+import { Bricolage_Grotesque, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 
 // Display face: confident editorial grotesk for headlines, numerals, wordmark.
@@ -9,10 +9,11 @@ const display = Bricolage_Grotesque({
   axes: ["opsz", "wdth"],
 });
 
-// Body face: quiet and highly legible on phones.
-const body = Inter({
+// Body face: editorial lineage, crisp at small sizes on phones, tabular figures.
+const body = IBM_Plex_Sans({
   variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -30,7 +31,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${body.variable} antialiased`}>{children}</body>
+      <body
+        className={`${display.variable} ${body.variable} antialiased`}
+        // Browser extensions add attributes to <body> before React loads; not our markup.
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
     </html>
   );
 }

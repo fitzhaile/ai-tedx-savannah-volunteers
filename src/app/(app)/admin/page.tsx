@@ -54,43 +54,44 @@ export default async function AdminDashboard() {
   }));
   const understaffed = withFill.filter((s) => s.filled < s.capacity && s.isPublished);
   const confirmedUpcoming = withFill.reduce((sum, s) => sum + s.filled, 0);
+  const openSpots = understaffed.reduce((sum, s) => sum + (s.capacity - s.filled), 0);
 
   return (
     <div>
       <PageHeader
-        eyebrow="Volunteer manager"
-        title="Dashboard"
-        subtitle={`It's ${fmtDateShort(currentTime)} · ${fmtTime(currentTime)} in Savannah`}
+        eyebrow={`${fmtDateShort(currentTime)} · ${fmtTime(currentTime)} in Savannah`}
+        title={
+          understaffed.length === 0
+            ? "Every upcoming shift is staffed."
+            : `${understaffed.length} of ${upcomingShifts.length} upcoming shifts still need ${openSpots} ${openSpots === 1 ? "person" : "people"}.`
+        }
+        subtitle={
+          unreadMessages > 0
+            ? `${unreadMessages} unread message${unreadMessages === 1 ? "" : "s"} from volunteers · ${confirmedUpcoming} confirmed signups`
+            : `${confirmedUpcoming} confirmed signups across ${upcomingShifts.length} upcoming shifts`
+        }
         action={<ButtonLink href="/admin/shifts/new" size="sm">+ New shift</ButtonLink>}
       />
 
-      <div className="mb-8 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
         {[
           { n: String(volunteers), label: "Active people" },
           { n: String(upcomingShifts.length), label: "Upcoming shifts" },
           { n: String(confirmedUpcoming), label: "Confirmed signups" },
           { n: `${sentToday}`, label: "Emails sent today", suffix: `/${settings.dailyEmailBudget}` },
         ].map((t) => (
-          <div key={t.label} className="border-t-2 border-ink pt-3">
-            <p className="font-display text-4xl leading-none font-extrabold text-ink">
+          <div key={t.label} className="border-t border-line pt-2">
+            <p className="font-display text-2xl leading-none font-extrabold text-ink">
               {t.n}
               {t.suffix ? (
-                <span className="text-base font-bold text-ink-faint">{t.suffix}</span>
+                <span className="text-sm font-bold text-ink-faint">{t.suffix}</span>
               ) : null}
             </p>
-            <p className="eyebrow mt-2 text-ink-faint">{t.label}</p>
+            <p className="eyebrow mt-1.5 text-ink-faint">{t.label}</p>
           </div>
         ))}
       </div>
 
-      {unreadMessages > 0 ? (
-        <div className="mb-6 rounded-xl bg-ted/10 px-4 py-3 text-sm font-semibold text-ted">
-          💬 {unreadMessages} unread message{unreadMessages === 1 ? "" : "s"} from volunteers.{" "}
-          <Link href="/admin/volunteers" className="underline">
-            View volunteers
-          </Link>
-        </div>
-      ) : null}
 
       {queued > 0 ? (
         <div className="mb-6 rounded-xl bg-warn-soft px-4 py-3 text-sm font-semibold text-warn">

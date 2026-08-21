@@ -76,7 +76,8 @@ Postgres on the default port 5432 works; `.env.example` has the shape).
 - UI text is warm and plain-spoken; volunteers are thanked, never blamed.
 - Visual system ("TEDx editorial"): white paper, black ink, TEDx red `#EB0028`
   (`text-ted`/`bg-ted`); Bricolage Grotesque for display type (`font-display`,
-  applied to h1–h3 globally), Inter for body. Prefer typographic hierarchy,
+  applied to h1–h3 globally), IBM Plex Sans for body. Capacity is shown as
+  one dot per spot (`CapacityPill`) — the signature element; keep it. Prefer typographic hierarchy,
   hairlines, and `border-t-4 border-ink` section rules over boxed cards. Tokens
   live in `src/app/globals.css`; primitives (`PageHeader`, `SectionTitle`,
   `Eyebrow`, `Badge`, pill `Button`s) in `src/components/ui.tsx`.

@@ -14,9 +14,17 @@ export const dynamic = "force-dynamic";
 const EVENT_DAY = "2027-05-15";
 
 /** Calendar-style day masthead: big numeral, weekday, month. */
-function DayMasthead({ date, tag }: { date: Date; tag?: React.ReactNode }) {
+function DayMasthead({
+  date,
+  tag,
+  summary,
+}: {
+  date: Date;
+  tag?: React.ReactNode;
+  summary: string;
+}) {
   return (
-    <div className="mb-1 flex items-end gap-4 border-t-4 border-ink pt-3">
+    <div className="mb-1 flex flex-wrap items-end gap-x-4 gap-y-2 border-t-4 border-ink pt-3">
       <span className="font-display text-6xl leading-none font-extrabold text-ink">
         {formatInTimeZone(date, TZ, "d")}
       </span>
@@ -27,8 +35,14 @@ function DayMasthead({ date, tag }: { date: Date; tag?: React.ReactNode }) {
         </p>
       </div>
       {tag ? <div className="pb-2">{tag}</div> : null}
+      <p className="ml-auto pb-1.5 text-sm font-semibold text-ink-soft">{summary}</p>
     </div>
   );
+}
+
+function daySummary(shifts: { capacity: number; filled: number }[]): string {
+  const open = shifts.reduce((n, s) => n + Math.max(0, s.capacity - s.filled), 0);
+  return `${shifts.length} shift${shifts.length === 1 ? "" : "s"} · ${open === 0 ? "all full" : `${open} spot${open === 1 ? "" : "s"} open`}`;
 }
 
 export default async function ShiftsPage({
@@ -119,6 +133,7 @@ export default async function ShiftsPage({
             <DayMasthead
               date={shifts[0].startsAt}
               tag={k === EVENT_DAY ? <Badge tone="red">Event day</Badge> : null}
+              summary={daySummary(shifts)}
             />
             <div>
               {shifts.map((s) => (
