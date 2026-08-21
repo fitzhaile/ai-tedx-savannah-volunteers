@@ -21,12 +21,12 @@ export function ProfileForm({
   return (
     <form action={action} className="space-y-4">
       <div>
-        <Label htmlFor="p-name">Name</Label>
+        <Label htmlFor="p-name">First and last name</Label>
         <Input id="p-name" name="name" defaultValue={name} required maxLength={80} />
       </div>
       <div>
-        <Label htmlFor="p-phone">Phone</Label>
-        <Input id="p-phone" name="phone" type="tel" defaultValue={phone ?? ""} maxLength={30} />
+        <Label htmlFor="p-phone">Mobile phone</Label>
+        <Input id="p-phone" name="phone" type="tel" defaultValue={phone ?? ""} required maxLength={30} />
       </div>
       <div>
         <Label>Email</Label>

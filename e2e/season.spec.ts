@@ -35,8 +35,9 @@ test("volunteer joins, signs up (capacity updates), and cancels with a reason", 
   page,
 }) => {
   await page.goto("/join");
-  await page.getByLabel("Your name").fill(VOLUNTEER_NAME);
+  await page.getByLabel("First and last name").fill(VOLUNTEER_NAME);
   await page.getByLabel("Email").fill(VOLUNTEER_EMAIL);
+  await page.getByLabel("Mobile phone").fill("912-555-0199");
   await page.getByRole("button", { name: "Join the volunteer crew" }).click();
 
   await expect(page).toHaveURL(/\/shifts/);
