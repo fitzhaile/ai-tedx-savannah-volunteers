@@ -123,7 +123,7 @@ plus-addressed variants of the manager's work email, so every test email lands i
 |---|---|
 | Framework | Next.js 15 (App Router, Server Components, Server Actions), React 19, TypeScript |
 | Data | PostgreSQL via Prisma 6 (Neon in production, Homebrew Postgres locally) |
-| Styling | Tailwind CSS v4 with a small hand-built component kit (`src/components/ui.tsx`) — no UI library |
+| UI | shadcn/ui (Radix primitives, Lucide icons, sonner toasts) on Tailwind CSS v4, themed to the TEDx identity; app vocabulary in `src/components/primitives.tsx` |
 | Auth | Cookie sessions + `jose`-signed login tokens (no third-party auth) |
 | Email out | Nodemailer over Gmail SMTP (app password); `console` transport for dev |
 | Email in | `imapflow` + `mailparser` against Gmail IMAP |
@@ -152,7 +152,8 @@ src/lib/notify.ts           domain events -> transactional emails
 src/lib/actions/            all server actions (auth, signup, admin, message, thread, dev)
 src/lib/queries/            read helpers (shift board, admin options, threads)
 src/lib/demo-data.ts        demo season (shared by CLI seed and the in-app button)
-src/components/ui.tsx       design-system primitives      src/components/client/  interactive pieces
+src/components/ui/          shadcn/ui components          src/components/primitives.tsx  app vocabulary
+src/components/AppShell.tsx sidebar shell (+ client/AppSidebar.tsx)   src/components/client/  interactive pieces
 src/test/                   Vitest suites                 e2e/                    Playwright specs
 ```
 
@@ -259,13 +260,14 @@ season loads from a button. No terminal required.
 
 ## Design
 
-A "TEDx editorial" system: white paper, near-black ink, TEDx red `#EB0028` used sparingly.
-**Bricolage Grotesque** carries display type (headlines, big numerals, the wordmark); **Inter**
-carries body text. Hierarchy comes from type, hairlines, and thick black section rules rather
-than boxed cards; buttons are pills; tags are small uppercase. Tokens live in
-`src/app/globals.css`, primitives in `src/components/ui.tsx`. Email templates
-(`src/lib/email/templates.ts`) mirror the look within what mail clients allow (inline styles,
-tables, a Helvetica stack).
+shadcn/ui components themed to the TEDx identity: white paper, near-black ink, TEDx red
+`#EB0028` as the primary color, and a black sidebar with a red active marker. **Bricolage
+Grotesque** carries display type (headlines, big numerals, the wordmark); **Geist** carries UI
+text. Signed-in pages share a sidebar app shell (a drawer on phones) that also holds the admin
+navigation; admin lists are tables, actions confirm in dialogs and report with toasts. Tokens
+live in `src/app/globals.css`; the app's component vocabulary in `src/components/primitives.tsx`;
+generated shadcn components in `src/components/ui/` (add more with `npx shadcn@latest add`).
+Email templates (`src/lib/email/templates.ts`) mirror the look within what mail clients allow.
 
 ---
 

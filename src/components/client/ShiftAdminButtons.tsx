@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/primitives";
 import { duplicateShiftAction, deleteShiftAction } from "@/lib/actions/admin-actions";
 
 export function ShiftAdminButtons({

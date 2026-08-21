@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { signinAction, type AuthFormState } from "@/lib/actions/auth-actions";
-import { Button, Input, Label } from "@/components/ui";
+import { Button, Input, Label } from "@/components/primitives";
 
 export function SigninForm() {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(signinAction, {});

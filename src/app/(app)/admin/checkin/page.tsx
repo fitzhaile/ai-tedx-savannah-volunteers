@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
-import { PageHeader } from "@/components/ui";
+import { PageHeader } from "@/components/primitives";
 import { CheckinBoard, type CheckinShift } from "@/components/client/CheckinBoard";
 import { dayKey, fmtDay, fmtTimeRange } from "@/lib/dates";
 import { formatInTimeZone } from "date-fns-tz";

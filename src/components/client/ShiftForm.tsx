@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { saveShiftAction, type FormState } from "@/lib/actions/admin-actions";
-import { Button, Input, Label, Select, Textarea, FieldHint } from "@/components/ui";
+import { Button, Input, Label, Select, Textarea, FieldHint } from "@/components/primitives";
 
 export interface SlotOption {
   id: string;

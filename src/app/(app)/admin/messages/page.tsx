@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/clock";
 import { sentTodayCount, queueDepth } from "@/lib/email/outbox";
-import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/ui";
+import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/primitives";
 import { SyncNowButton } from "@/components/client/SyncNowButton";
 import { formatInTimeZone } from "date-fns-tz";
 import { TZ } from "@/lib/dates";

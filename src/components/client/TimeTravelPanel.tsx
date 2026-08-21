@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Input, Label, FieldHint, Textarea } from "@/components/ui";
+import { Button, Card, Input, Label, FieldHint, Textarea } from "@/components/primitives";
 import {
   setSimulatedNowAction,
   runSchedulerAction,

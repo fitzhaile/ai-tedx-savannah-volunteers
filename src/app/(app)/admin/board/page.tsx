@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
-import { Card, PageHeader, EmptyState, Badge } from "@/components/ui";
+import { Card, PageHeader, EmptyState, Badge } from "@/components/primitives";
 import { AddBoardForm, BoardRowActions } from "@/components/client/BoardAdmin";
 import { unreadByUserForManager } from "@/lib/queries/threads";
 import { formatInTimeZone } from "date-fns-tz";

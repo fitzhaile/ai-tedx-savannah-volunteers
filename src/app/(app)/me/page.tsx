@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { now } from "@/lib/clock";
 import { prisma } from "@/lib/db";
-import { Card, PageHeader, EmptyState, Badge, ButtonLink } from "@/components/ui";
+import { Card, PageHeader, EmptyState, Badge, ButtonLink } from "@/components/primitives";
 import { SignupControls } from "@/components/client/SignupControls";
 import { ProfileForm } from "@/components/client/ProfileForm";
 import { fmtShiftWhen } from "@/lib/dates";

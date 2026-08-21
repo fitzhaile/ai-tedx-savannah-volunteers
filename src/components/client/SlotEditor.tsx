@@ -3,7 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveSlotAction, deleteSlotAction, type FormState } from "@/lib/actions/admin-actions";
-import { Button, Input, Label, Card, FieldHint } from "@/components/ui";
+import { Button, Input, Label, Card, FieldHint } from "@/components/primitives";
 
 export interface SlotRowData {
   id: string;

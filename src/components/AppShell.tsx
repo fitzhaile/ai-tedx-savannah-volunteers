@@ -1,73 +1,116 @@
 import Link from "next/link";
-import type { User } from "@prisma/client";
-import { Wordmark } from "@/components/ui";
-import { NavLinks } from "@/components/client/NavLinks";
-import { signOutAction } from "@/lib/actions/auth-actions";
-import { homeFor } from "@/lib/auth";
-import { getSettings } from "@/lib/clock";
-import { unreadCountForMember } from "@/lib/queries/threads";
-import { formatInTimeZone } from "date-fns-tz";
-import { TZ } from "@/lib/dates";
 import type { ReactNode } from "react";
+import type { User } from "@prisma/client";
+import { LogOut } from "lucide-react";
+import { formatInTimeZone } from "date-fns-tz";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { AppSidebar, type NavGroup } from "@/components/client/AppSidebar";
+import { Wordmark } from "@/components/primitives";
+import { signOutAction } from "@/lib/actions/auth-actions";
+import { getSettings } from "@/lib/clock";
+import { unreadCountForMember, totalUnreadForManager } from "@/lib/queries/threads";
+import { TZ } from "@/lib/dates";
 
 export async function AppShell({ user, children }: { user: User; children: ReactNode }) {
   const settings = await getSettings();
-  const links: { href: string; label: string; badge?: number }[] = [
-    { href: "/shifts", label: "Shifts" },
-    { href: "/me", label: "My shifts" },
-  ];
-  if (user.role !== "MANAGER") {
+  const isManager = user.role === "MANAGER";
+  const isBoard = user.role === "BOARD" || isManager;
+
+  const groups: NavGroup[] = [];
+  const mine: NavGroup = {
+    label: "Volunteering",
+    items: [
+      { href: "/shifts", label: "Open shifts", icon: "calendar", exact: true },
+      { href: "/me", label: "My shifts", icon: "mine", exact: true },
+    ],
+  };
+  if (!isManager) {
     const unread = await unreadCountForMember(user.id);
-    links.push({ href: "/me/messages", label: "Messages", badge: unread || undefined });
+    mine.items.push({ href: "/me/messages", label: "Messages", icon: "messages", badge: unread || undefined });
   }
-  if (user.role === "BOARD" || user.role === "MANAGER") {
-    links.push({ href: "/board", label: "My volunteers" });
+  groups.push(mine);
+  if (isBoard) {
+    groups.push({
+      label: "Board",
+      items: [{ href: "/board", label: "My volunteers", icon: "users" }],
+    });
   }
-  if (user.role === "MANAGER") {
-    links.push({ href: "/admin", label: "Admin" });
+  if (isManager) {
+    const unread = await totalUnreadForManager();
+    const admin: NavGroup = {
+      label: "Manage",
+      items: [
+        { href: "/admin", label: "Dashboard", icon: "dashboard", exact: true },
+        { href: "/admin/shifts", label: "Shifts", icon: "calendar" },
+        { href: "/admin/slots", label: "Standard times", icon: "slots" },
+        { href: "/admin/volunteers", label: "Volunteers", icon: "volunteer", badge: unread || undefined },
+        { href: "/admin/board", label: "Board members", icon: "board" },
+        { href: "/admin/messages", label: "Messages", icon: "mail" },
+        { href: "/admin/checkin", label: "Check-in", icon: "checkin" },
+      ],
+    };
+    if (process.env.ENABLE_TIME_TRAVEL === "true") {
+      admin.items.push({ href: "/admin/dev", label: "Time travel", icon: "timer" });
+    }
+    groups.push(admin);
   }
 
-  return (
-    <div className="min-h-screen">
-      {settings.simulatedNow ? (
-        <div
-          data-testid="time-travel-banner"
-          className="bg-warn px-4 py-1.5 text-center text-xs font-bold text-white"
+  const footer = (
+    <div className="flex items-center justify-between gap-2">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold text-white">{user.name}</p>
+        <p className="truncate text-xs text-white/50">{user.email}</p>
+      </div>
+      <form action={signOutAction}>
+        <Button
+          type="submit"
+          variant="ghost"
+          size="icon-sm"
+          className="text-white/70 hover:bg-white/10 hover:text-white"
+          title="Sign out"
         >
-          ⏱ Simulated time:{" "}
-          {formatInTimeZone(settings.simulatedNow, TZ, "EEE, MMM d, yyyy · h:mm a")}
-          {user.role === "MANAGER" ? (
-            <>
-              {" — "}
-              <Link href="/admin/dev" className="underline">
-                time travel panel
-              </Link>
-            </>
-          ) : null}
-        </div>
-      ) : null}
-      <header className="sticky top-0 z-40 bg-ink text-white">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <Link href={homeFor(user)} className="shrink-0">
-            <Wordmark inverse />
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="hidden text-sm text-white/60 sm:block">{user.name}</span>
-            <form action={signOutAction}>
-              <button
-                type="submit"
-                className="text-xs font-bold tracking-wide text-white/70 uppercase transition-colors hover:text-white"
-              >
-                Sign out
-              </button>
-            </form>
-          </div>
-        </div>
-        <nav className="mx-auto max-w-5xl overflow-x-auto px-4">
-          <NavLinks links={links} />
-        </nav>
-      </header>
-      <main className="mx-auto max-w-5xl px-4 py-8 pb-20">{children}</main>
+          <LogOut />
+          <span className="sr-only">Sign out</span>
+        </Button>
+      </form>
     </div>
+  );
+
+  return (
+    <SidebarProvider>
+      <AppSidebar groups={groups} footer={footer} />
+      <SidebarInset>
+        {settings.simulatedNow ? (
+          <div
+            data-testid="time-travel-banner"
+            className="bg-warn px-4 py-1.5 text-center text-xs font-bold text-white"
+          >
+            ⏱ Simulated time:{" "}
+            {formatInTimeZone(settings.simulatedNow, TZ, "EEE, MMM d, yyyy · h:mm a")}
+            {isManager ? (
+              <>
+                {" — "}
+                <Link href="/admin/dev" className="underline">
+                  time travel panel
+                </Link>
+              </>
+            ) : null}
+          </div>
+        ) : null}
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur md:px-6">
+          <SidebarTrigger />
+          <div className="md:hidden">
+            <Link href="/">
+              <Wordmark />
+            </Link>
+          </div>
+          <div className="ml-auto hidden text-sm text-muted-foreground md:block">
+            Saturday, May 15, 2027
+          </div>
+        </header>
+        <main className="mx-auto w-full max-w-5xl px-4 py-6 pb-16 md:px-8">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

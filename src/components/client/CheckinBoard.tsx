@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Badge, Input, Select, Card } from "@/components/ui";
+import { Button, Badge, Input, Select, Card } from "@/components/primitives";
 import { Modal } from "@/components/client/Modal";
 import { adminSetSignupStatus, adminAddToShift } from "@/lib/actions/admin-actions";
 import { cn } from "@/lib/cn";

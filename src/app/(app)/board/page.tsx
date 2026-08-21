@@ -1,7 +1,7 @@
 import { requireBoard } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { now } from "@/lib/clock";
-import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/ui";
+import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/primitives";
 import { fmtShiftWhen } from "@/lib/dates";
 
 export const metadata = { title: "My volunteers" };

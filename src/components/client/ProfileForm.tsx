@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { updateProfileAction, type AuthFormState } from "@/lib/actions/auth-actions";
-import { Button, Input, Label, FieldHint } from "@/components/ui";
+import { Button, Input, Label, FieldHint } from "@/components/primitives";
 
 export function ProfileForm({
   name,

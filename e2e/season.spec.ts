@@ -26,9 +26,8 @@ test.afterAll(async () => {
 });
 
 function shiftCard(page: Page, title: string) {
-  // Shift rows are <article>s on the board and <Card>s on My Shifts.
   return page
-    .locator("article, div.rounded-lg")
+    .locator('[data-slot="card"]')
     .filter({ has: page.getByRole("heading", { name: title, exact: true }) });
 }
 
@@ -50,7 +49,8 @@ test("volunteer joins, signs up (capacity updates), and cancels with a reason", 
   await expect(card.getByText("You're signed up")).toBeVisible();
   await expect(card.getByText("2 spots left")).toBeVisible();
 
-  // A full shift offers the waitlist instead.
+  // A full shift offers the waitlist instead (it's on the Saturday tab).
+  await page.getByRole("tab", { name: /15/ }).click();
   const full = shiftCard(page, "Green Room Support");
   await expect(full.getByRole("button", { name: "Join waitlist" })).toBeVisible();
 
@@ -112,6 +112,7 @@ test("manager: cancellation feed, custom-time shift, time travel, reminders, che
   // Jump to event morning and run check-in.
   await page.goto("/admin/dev");
   await page.getByRole("button", { name: /May 15, 2027/ }).click();
+  await expect(page.getByTestId("time-travel-banner")).toContainText("May 15");
   await page.goto("/admin/checkin");
   await expect(page.getByText(/0 of \d+ here/)).toBeVisible();
   await page.getByRole("button", { name: "Check in" }).first().click();

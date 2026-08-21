@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { renderLogRow } from "@/lib/email/outbox";
-import { PageHeader, Badge, ButtonLink } from "@/components/ui";
+import { PageHeader, Badge, ButtonLink } from "@/components/primitives";
 import { formatInTimeZone } from "date-fns-tz";
 import { TZ } from "@/lib/dates";
 

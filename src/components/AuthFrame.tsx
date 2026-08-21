@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Wordmark, Eyebrow } from "@/components/ui";
+import { Wordmark, Eyebrow } from "@/components/primitives";
 
 /** Split layout for /join and /signin: black brand panel + the form. */
 export function AuthFrame({

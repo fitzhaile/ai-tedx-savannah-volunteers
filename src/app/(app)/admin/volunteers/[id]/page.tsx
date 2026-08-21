@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireManager } from "@/lib/auth";
-import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/ui";
+import { Card, PageHeader, Badge, ButtonLink, EmptyState } from "@/components/primitives";
 import { VolunteerEditForm, VolunteerTools } from "@/components/client/VolunteerAdmin";
 import { ThreadPanel } from "@/components/client/ThreadPanel";
 import { getThread } from "@/lib/queries/threads";

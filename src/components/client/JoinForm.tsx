@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { joinAction, type AuthFormState } from "@/lib/actions/auth-actions";
-import { Button, Input, Label, FieldHint } from "@/components/ui";
+import { Button, Input, Label, FieldHint } from "@/components/primitives";
 
 export function JoinForm() {
   const [state, action, pending] = useActionState<AuthFormState, FormData>(joinAction, {});

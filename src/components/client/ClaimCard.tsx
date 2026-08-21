@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/primitives";
 import { claimSpot } from "@/lib/actions/signup-actions";
 
 export function ClaimCard({ shiftId, shiftTitle, when }: { shiftId: string; shiftTitle: string; when: string }) {

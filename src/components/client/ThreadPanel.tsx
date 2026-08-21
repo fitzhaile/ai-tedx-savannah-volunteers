@@ -2,8 +2,9 @@
 
 import { useActionState, useEffect, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { formatInTimeZone } from "date-fns-tz";
-import { Badge, Button, Textarea } from "@/components/ui";
+import { Badge, Button, Textarea } from "@/components/primitives";
 import type { ThreadMessageView } from "@/lib/queries/threads";
 import {
   sendThreadMessageAction,
@@ -60,6 +61,7 @@ export function ThreadPanel({
   useEffect(() => {
     if (state.ok) {
       formRef.current?.reset();
+      toast.success("Message sent");
       router.refresh();
     }
   }, [state, router]);

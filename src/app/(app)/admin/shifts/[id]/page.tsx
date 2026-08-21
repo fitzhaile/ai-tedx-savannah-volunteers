@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { Card, PageHeader, Badge, ButtonLink } from "@/components/ui";
+import { Card, PageHeader, Badge, ButtonLink } from "@/components/primitives";
 import { ShiftForm, type ShiftFormValues } from "@/components/client/ShiftForm";
 import { RosterPanel, type RosterEntry } from "@/components/client/RosterPanel";
 import { ShiftAdminButtons } from "@/components/client/ShiftAdminButtons";

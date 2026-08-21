@@ -1,4 +1,2 @@
-/** Tiny className joiner — keeps us dependency-free. */
-export function cn(...parts: Array<string | false | null | undefined>): string {
-  return parts.filter(Boolean).join(" ");
-}
+/** Class joiner with Tailwind conflict resolution (re-exported from shadcn's utils). */
+export { cn } from "@/lib/utils";

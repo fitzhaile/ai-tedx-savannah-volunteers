@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/primitives";
 import { syncInboxNowAction } from "@/lib/actions/thread-actions";
 
 /** Manually pull replies from Gmail (the cron does this every ~10 minutes). */

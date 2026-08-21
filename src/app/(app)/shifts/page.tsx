@@ -3,33 +3,17 @@ import { now } from "@/lib/clock";
 import { getShiftBoard } from "@/lib/queries/shifts";
 import { ShiftCard } from "@/components/ShiftCard";
 import { ClaimCard } from "@/components/client/ClaimCard";
-import { PageHeader, EmptyState, Badge } from "@/components/ui";
-import { dayKey, fmtShiftWhen } from "@/lib/dates";
+import { PageHeader, EmptyState, Badge } from "@/components/primitives";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { PartyPopper } from "lucide-react";
+import { dayKey, fmtDay, fmtShiftWhen, TZ } from "@/lib/dates";
 import { formatInTimeZone } from "date-fns-tz";
-import { TZ } from "@/lib/dates";
 
 export const metadata = { title: "Shifts" };
 export const dynamic = "force-dynamic";
 
 const EVENT_DAY = "2027-05-15";
-
-/** Calendar-style day masthead: big numeral, weekday, month. */
-function DayMasthead({ date, tag }: { date: Date; tag?: React.ReactNode }) {
-  return (
-    <div className="mb-1 flex items-end gap-4 border-t-4 border-ink pt-3">
-      <span className="font-display text-6xl leading-none font-extrabold text-ink">
-        {formatInTimeZone(date, TZ, "d")}
-      </span>
-      <div className="pb-1">
-        <p className="eyebrow text-ted">{formatInTimeZone(date, TZ, "EEEE")}</p>
-        <p className="font-display text-lg leading-tight font-extrabold text-ink">
-          {formatInTimeZone(date, TZ, "MMMM yyyy")}
-        </p>
-      </div>
-      {tag ? <div className="pb-2">{tag}</div> : null}
-    </div>
-  );
-}
 
 export default async function ShiftsPage({
   searchParams,
@@ -39,7 +23,6 @@ export default async function ShiftsPage({
   const user = await requireUser();
   const [{ welcome, claim }, currentTime] = await Promise.all([searchParams, now()]);
   const board = await getShiftBoard(user.id, currentTime);
-
   const claimShift = claim ? board.find((s) => s.id === claim) : null;
 
   const regular = board.filter((s) => s.category !== "COACHING");
@@ -58,23 +41,21 @@ export default async function ShiftsPage({
     coachingGroups.get(k)!.push(s);
   }
 
-  const dayChips = [...dayGroups.keys()].map((k) => ({
-    id: `d-${k}`,
-    label: formatInTimeZone(dayGroups.get(k)![0].startsAt, TZ, "EEE d"),
-  }));
-  if (coaching.length > 0) dayChips.push({ id: "coaching", label: "Coaching" });
-
-  const openSpots = board.reduce((n, s) => n + Math.max(0, s.capacity - s.filled), 0);
+  const openSpots = (list: { capacity: number; filled: number }[]) =>
+    list.reduce((n, s) => n + Math.max(0, s.capacity - s.filled), 0);
+  const dayKeys = [...dayGroups.keys()];
+  const defaultTab = dayKeys[0] ?? (coaching.length ? "coaching" : "");
 
   return (
     <div>
       {welcome ? (
-        <div className="mb-6 border-l-4 border-ted bg-ted-soft px-4 py-3 text-sm">
-          <p className="font-display font-extrabold text-ink">You&apos;re in.</p>
-          <p className="mt-0.5 text-ink-soft">
+        <Alert className="mb-5 border-go/30 bg-go-soft">
+          <PartyPopper className="text-go" />
+          <AlertTitle>You&apos;re in.</AlertTitle>
+          <AlertDescription>
             Grab any shifts below — you&apos;ll get a confirmation email for each one.
-          </p>
-        </div>
+          </AlertDescription>
+        </Alert>
       ) : null}
       {claimShift ? (
         <ClaimCard
@@ -87,76 +68,87 @@ export default async function ShiftsPage({
       <PageHeader
         eyebrow="Volunteer shifts"
         title="Open shifts"
-        subtitle={`First come, first served — ${openSpots} spot${openSpots === 1 ? "" : "s"} still open across ${board.length} shift${board.length === 1 ? "" : "s"}.`}
+        subtitle={`First come, first served — ${openSpots(board)} spot${openSpots(board) === 1 ? "" : "s"} still open across ${board.length} shift${board.length === 1 ? "" : "s"}.`}
       />
-
-      {dayChips.length > 1 ? (
-        <div className="sticky top-[5.75rem] z-30 -mx-4 mb-8 overflow-x-auto bg-paper/95 px-4 py-2 backdrop-blur">
-          <div className="flex gap-2">
-            {dayChips.map((c) => (
-              <a
-                key={c.id}
-                href={`#${c.id}`}
-                className="rounded-full border-2 border-ink px-3.5 py-1 text-xs font-extrabold whitespace-nowrap text-ink transition-colors hover:bg-ink hover:text-white"
-              >
-                {c.label}
-              </a>
-            ))}
-          </div>
-        </div>
-      ) : null}
 
       {board.length === 0 ? (
         <EmptyState
           title="No open shifts right now"
           hint="New shifts appear here as the event approaches — watch your email."
         />
-      ) : null}
+      ) : (
+        <Tabs defaultValue={defaultTab}>
+          <TabsList className="mb-5 flex h-auto w-full flex-nowrap justify-start overflow-x-auto">
+            {dayKeys.map((k) => {
+              const d = dayGroups.get(k)![0].startsAt;
+              return (
+                <TabsTrigger key={k} value={k} className="px-3 py-2">
+                  <span className="font-display text-base font-bold">
+                    {formatInTimeZone(d, TZ, "d")}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatInTimeZone(d, TZ, "EEE")}
+                  </span>
+                  <span className="ml-1 rounded-full bg-muted px-1.5 text-[11px] font-semibold text-muted-foreground">
+                    {openSpots(dayGroups.get(k)!)} open
+                  </span>
+                </TabsTrigger>
+              );
+            })}
+            {coaching.length > 0 ? (
+              <TabsTrigger value="coaching" className="px-3 py-2">
+                <span className="font-semibold">Speaker coaching</span>
+                <span className="ml-1 rounded-full bg-muted px-1.5 text-[11px] font-semibold text-muted-foreground">
+                  {openSpots(coaching)} open
+                </span>
+              </TabsTrigger>
+            ) : null}
+          </TabsList>
 
-      <div className="space-y-14">
-        {[...dayGroups.entries()].map(([k, shifts]) => (
-          <section key={k} id={`d-${k}`} className="scroll-mt-36">
-            <DayMasthead
-              date={shifts[0].startsAt}
-              tag={k === EVENT_DAY ? <Badge tone="red">Event day</Badge> : null}
-            />
-            <div>
-              {shifts.map((s) => (
-                <ShiftCard key={s.id} shift={s} past={s.endsAt < currentTime} />
-              ))}
-            </div>
-          </section>
-        ))}
-
-        {coaching.length > 0 ? (
-          <section id="coaching" className="scroll-mt-36">
-            <div className="border-t-4 border-ink pt-3">
-              <p className="eyebrow text-ted">March – April</p>
-              <h2 className="mt-1 font-display text-3xl font-extrabold text-ink">
-                Speaker Coaching
-              </h2>
-              <p className="mt-2 max-w-prose text-sm text-ink-soft">
-                Evening sessions helping our speakers rehearse in the months before the
-                event. Low-key, fascinating, and a great way to meet the speakers early.
-              </p>
-            </div>
-            <div className="mt-6 space-y-10">
-              {[...coachingGroups.entries()].map(([k, shifts]) => (
-                <div key={k}>
-                  <p className="mb-1 font-display text-base font-extrabold text-ink">
-                    {formatInTimeZone(shifts[0].startsAt, TZ, "EEEE, MMMM d")}
-                  </p>
-                  <div>
-                    {shifts.map((s) => (
-                      <ShiftCard key={s.id} shift={s} past={s.endsAt < currentTime} />
-                    ))}
-                  </div>
+          {dayKeys.map((k) => {
+            const shifts = dayGroups.get(k)!;
+            return (
+              <TabsContent key={k} value={k}>
+                <div className="mb-4 flex items-center gap-2">
+                  <h2 className="font-display text-xl font-bold">{fmtDay(shifts[0].startsAt)}</h2>
+                  {k === EVENT_DAY ? <Badge tone="red">Event day</Badge> : null}
                 </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
-      </div>
+                <div className="space-y-3">
+                  {shifts.map((s) => (
+                    <ShiftCard key={s.id} shift={s} past={s.endsAt < currentTime} />
+                  ))}
+                </div>
+              </TabsContent>
+            );
+          })}
+
+          {coaching.length > 0 ? (
+            <TabsContent value="coaching">
+              <div className="mb-4">
+                <h2 className="font-display text-xl font-bold">Speaker coaching</h2>
+                <p className="mt-1 max-w-prose text-sm text-muted-foreground">
+                  Evening sessions helping our speakers rehearse in the months before the
+                  event. Low-key, fascinating, and a great way to meet the speakers early.
+                </p>
+              </div>
+              <div className="space-y-6">
+                {[...coachingGroups.entries()].map(([k, shifts]) => (
+                  <div key={k}>
+                    <h3 className="mb-2 text-sm font-bold text-muted-foreground">
+                      {fmtDay(shifts[0].startsAt)}
+                    </h3>
+                    <div className="space-y-3">
+                      {shifts.map((s) => (
+                        <ShiftCard key={s.id} shift={s} past={s.endsAt < currentTime} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+          ) : null}
+        </Tabs>
+      )}
     </div>
   );
 }

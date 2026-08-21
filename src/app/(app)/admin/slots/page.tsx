@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { PageHeader } from "@/components/ui";
+import { PageHeader } from "@/components/primitives";
 import { SlotEditor, type SlotRowData } from "@/components/client/SlotEditor";
 import { fmtShiftWhen, toInputValue } from "@/lib/dates";
 

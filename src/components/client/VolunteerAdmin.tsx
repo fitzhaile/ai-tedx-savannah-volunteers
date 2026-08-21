@@ -8,7 +8,7 @@ import {
   generateSigninLink,
   type FormState,
 } from "@/lib/actions/admin-actions";
-import { Button, Input, Label, Textarea, FieldHint } from "@/components/ui";
+import { Button, Input, Label, Textarea, FieldHint } from "@/components/primitives";
 
 export function VolunteerEditForm({
   user,
