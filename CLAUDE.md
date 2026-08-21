@@ -15,6 +15,7 @@ npm run typecheck    # tsc --noEmit
 npm test             # vitest
 npm run db:migrate   # prisma migrate dev
 npm run db:seed      # rebuild the demo season (keeps manager account)
+npm run login-link -- <email> [path]   # print a sign-in link (local dev)
 ```
 
 Local Postgres for dev: whatever `DATABASE_URL` in `.env` points at (Homebrew
