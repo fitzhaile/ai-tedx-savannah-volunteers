@@ -8,6 +8,8 @@ import { now } from "@/lib/clock";
 import { fromInputValue } from "@/lib/dates";
 import { runScheduledWork } from "@/lib/scheduler";
 import { ingestInboundEmail } from "@/lib/email/imap-sync";
+import { sendNow } from "@/lib/email/outbox";
+import { SAMPLE_EMAILS } from "@/lib/email/samples";
 
 /** Time-travel test tools. All gated behind ENABLE_TIME_TRAVEL=true. */
 
@@ -148,4 +150,26 @@ export async function resetForProductionAction(): Promise<string> {
   await prisma.settings.update({ where: { id: 1 }, data: { simulatedNow: null } });
   revalidatePath("/", "layout");
   return "All demo data removed. Only your manager account remains — ready for real volunteers.";
+}
+
+/** Send the manager one real example of every email template. */
+export async function sendSampleEmailsAction(): Promise<string> {
+  const manager = await requireManager();
+  assertEnabled();
+  let sent = 0;
+  let failed = 0;
+  for (const sample of SAMPLE_EMAILS) {
+    const log = await sendNow({
+      kind: sample.kind,
+      toEmail: manager.email,
+      userId: manager.id,
+      linkPath: sample.linkPath,
+      params: sample.params,
+    });
+    if (log?.status === "SENT") sent += 1;
+    else failed += 1;
+  }
+  revalidatePath("/admin/messages");
+  const where = (process.env.EMAIL_TRANSPORT ?? "console") === "gmail" ? manager.email : "the outbox only (console mode)";
+  return `Sent ${sent} of ${SAMPLE_EMAILS.length} sample emails to ${where}${failed ? ` — ${failed} failed; see Admin → Messages` : ""}.`;
 }

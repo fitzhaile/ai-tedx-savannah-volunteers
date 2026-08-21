@@ -10,6 +10,7 @@ import {
   loadDemoSeasonAction,
   resetForProductionAction,
   simulateInboundEmailAction,
+  sendSampleEmailsAction,
 } from "@/lib/actions/dev-actions";
 
 const PRESETS: { label: string; value: string; hint: string }[] = [
@@ -181,6 +182,29 @@ export function TimeTravelPanel({
               <p className="text-sm font-semibold text-ink-soft">{simResult}</p>
             ) : null}
           </div>
+        </div>
+      </Card>
+
+      <Card>
+        <h2 className="mb-1 text-sm font-extrabold text-ink">Email templates</h2>
+        <p className="mb-3 text-sm text-ink-soft">
+          Send yourself one real example of every email the app can send (12 emails), so you can
+          check how they look in an actual inbox. Each one also appears in Admin → Messages.
+        </p>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => {
+                setSchedResult(await sendSampleEmailsAction());
+                router.refresh();
+              })
+            }
+          >
+            Email me one of each
+          </Button>
         </div>
       </Card>
 
