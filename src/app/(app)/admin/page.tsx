@@ -4,7 +4,7 @@ import { now } from "@/lib/clock";
 import { getSettings } from "@/lib/clock";
 import { sentTodayCount, queueDepth } from "@/lib/email/outbox";
 import { totalUnreadForManager } from "@/lib/queries/threads";
-import { Card, PageHeader, Badge, EmptyState, ButtonLink } from "@/components/ui";
+import { Card, PageHeader, Badge, EmptyState, ButtonLink, SectionTitle } from "@/components/ui";
 import { fmtShiftWhen, fmtDateShort, fmtTime } from "@/lib/dates";
 
 export const metadata = { title: "Admin" };
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 function FillBar({ filled, capacity }: { filled: number; capacity: number }) {
   const pct = Math.min(100, Math.round((filled / Math.max(1, capacity)) * 100));
-  const color = pct >= 100 ? "bg-go" : pct >= 60 ? "bg-warn" : "bg-ted";
+  const color = pct >= 100 ? "bg-ink" : pct >= 60 ? "bg-warn" : "bg-ted";
   return (
     <div className="flex items-center gap-2">
       <div className="h-2 w-24 overflow-hidden rounded-full bg-line">
@@ -58,33 +58,29 @@ export default async function AdminDashboard() {
   return (
     <div>
       <PageHeader
+        eyebrow="Volunteer manager"
         title="Dashboard"
         subtitle={`It's ${fmtDateShort(currentTime)} · ${fmtTime(currentTime)} in Savannah`}
         action={<ButtonLink href="/admin/shifts/new" size="sm">+ New shift</ButtonLink>}
       />
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Card className="py-4">
-          <p className="text-2xl font-extrabold text-ink">{volunteers}</p>
-          <p className="text-xs font-semibold text-ink-soft">Active people</p>
-        </Card>
-        <Card className="py-4">
-          <p className="text-2xl font-extrabold text-ink">{upcomingShifts.length}</p>
-          <p className="text-xs font-semibold text-ink-soft">Upcoming shifts</p>
-        </Card>
-        <Card className="py-4">
-          <p className="text-2xl font-extrabold text-ink">{confirmedUpcoming}</p>
-          <p className="text-xs font-semibold text-ink-soft">Confirmed signups</p>
-        </Card>
-        <Card className="py-4">
-          <p className="text-2xl font-extrabold text-ink">
-            {sentToday}
-            <span className="text-sm font-semibold text-ink-faint">
-              /{settings.dailyEmailBudget}
-            </span>
-          </p>
-          <p className="text-xs font-semibold text-ink-soft">Emails sent today</p>
-        </Card>
+      <div className="mb-8 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4">
+        {[
+          { n: String(volunteers), label: "Active people" },
+          { n: String(upcomingShifts.length), label: "Upcoming shifts" },
+          { n: String(confirmedUpcoming), label: "Confirmed signups" },
+          { n: `${sentToday}`, label: "Emails sent today", suffix: `/${settings.dailyEmailBudget}` },
+        ].map((t) => (
+          <div key={t.label} className="border-t-2 border-ink pt-3">
+            <p className="font-display text-4xl leading-none font-extrabold text-ink">
+              {t.n}
+              {t.suffix ? (
+                <span className="text-base font-bold text-ink-faint">{t.suffix}</span>
+              ) : null}
+            </p>
+            <p className="eyebrow mt-2 text-ink-faint">{t.label}</p>
+          </div>
+        ))}
       </div>
 
       {unreadMessages > 0 ? (
@@ -108,14 +104,14 @@ export default async function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section>
-          <h2 className="mb-3 text-lg font-extrabold text-ink">Needs volunteers</h2>
+          <SectionTitle>Needs volunteers</SectionTitle>
           {understaffed.length === 0 ? (
             <EmptyState title="Every upcoming shift is fully staffed 🎉" />
           ) : (
             <div className="space-y-2">
               {understaffed.slice(0, 8).map((s) => (
                 <Link key={s.id} href={`/admin/shifts/${s.id}`} className="block">
-                  <Card className="flex items-center justify-between gap-3 py-3 transition-colors hover:border-ted">
+                  <Card className="flex items-center justify-between gap-3 rounded-none border-x-0 border-t-0 px-0 py-3 transition-colors hover:bg-paper-2">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-bold text-ink">{s.title}</p>
                       <p className="text-xs text-ink-soft">
@@ -132,7 +128,7 @@ export default async function AdminDashboard() {
         </section>
 
         <section>
-          <h2 className="mb-3 text-lg font-extrabold text-ink">Recent cancellations</h2>
+          <SectionTitle>Recent cancellations</SectionTitle>
           {cancellations.length === 0 ? (
             <EmptyState title="No cancellations — enjoy it while it lasts" />
           ) : (

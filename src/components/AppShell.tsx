@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { User } from "@prisma/client";
-import { Wordmark, Button } from "@/components/ui";
+import { Wordmark } from "@/components/ui";
 import { NavLinks } from "@/components/client/NavLinks";
 import { signOutAction } from "@/lib/actions/auth-actions";
 import { homeFor } from "@/lib/auth";
@@ -46,17 +46,20 @@ export async function AppShell({ user, children }: { user: User; children: React
           ) : null}
         </div>
       ) : null}
-      <header className="sticky top-0 z-40 border-b border-line bg-card/95 backdrop-blur">
+      <header className="sticky top-0 z-40 bg-ink text-white">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <Link href={homeFor(user)}>
-            <Wordmark />
+          <Link href={homeFor(user)} className="shrink-0">
+            <Wordmark inverse />
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-ink-soft sm:block">{user.name}</span>
+          <div className="flex items-center gap-4">
+            <span className="hidden text-sm text-white/60 sm:block">{user.name}</span>
             <form action={signOutAction}>
-              <Button variant="ghost" size="sm" type="submit">
+              <button
+                type="submit"
+                className="text-xs font-bold tracking-wide text-white/70 uppercase transition-colors hover:text-white"
+              >
                 Sign out
-              </Button>
+              </button>
             </form>
           </div>
         </div>
@@ -64,7 +67,7 @@ export async function AppShell({ user, children }: { user: User; children: React
           <NavLinks links={links} />
         </nav>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-6 pb-16">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-8 pb-20">{children}</main>
     </div>
   );
 }

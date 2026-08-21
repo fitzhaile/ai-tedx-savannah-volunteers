@@ -100,7 +100,7 @@ export function CheckinBoard({
   return (
     <div>
       <div className="sticky top-24 z-30 -mx-4 mb-4 flex items-center justify-between gap-3 bg-paper/95 px-4 py-2 backdrop-blur">
-        <p className="text-lg font-extrabold text-ink">
+        <p className="font-display text-2xl font-extrabold text-ink">
           <span className="text-ted">{checkedIn}</span> of {expected} here
         </p>
         <Button variant="secondary" size="sm" onClick={() => setWalkupOpen(true)}>
@@ -118,8 +118,8 @@ export function CheckinBoard({
       <div className="space-y-6">
         {visible.map((s) => (
           <section key={s.id}>
-            <h2 className="mb-2 text-sm font-extrabold text-ink">
-              {s.title} <span className="font-semibold text-ink-soft">· {s.timeRange}</span>
+            <h2 className="mb-1 border-t-4 border-ink pt-3 font-display text-lg font-extrabold text-ink">
+              {s.title} <span className="text-sm font-bold text-ink-faint">· {s.timeRange}</span>
             </h2>
             <div className="space-y-2">
               {s.entries.map((e) => {
@@ -128,13 +128,13 @@ export function CheckinBoard({
                   <Card
                     key={e.signupId}
                     className={cn(
-                      "flex items-center justify-between gap-3 py-3",
-                      st === "CHECKED_IN" && "border-go bg-go-soft/40",
+                      "flex items-center justify-between gap-3 rounded-none border-x-0 border-t-0 px-0 py-3.5",
+                      st === "CHECKED_IN" && "bg-transparent",
                       st === "NO_SHOW" && "opacity-60"
                     )}
                   >
                     <div className="min-w-0">
-                      <p className="text-base font-bold text-ink">{e.name}</p>
+                      <p className="font-display text-lg font-extrabold text-ink">{e.name}</p>
                       <p className="text-xs text-ink-soft">
                         {e.phone ?? "no phone"} ·{" "}
                         <button
@@ -153,10 +153,10 @@ export function CheckinBoard({
                         type="button"
                         onClick={() => toggle(e)}
                         className={cn(
-                          "min-w-28 rounded-xl px-4 py-3 text-sm font-extrabold transition-colors",
+                          "min-w-32 rounded-full px-5 py-3 font-display text-sm font-extrabold transition-all active:scale-[0.97]",
                           st === "CHECKED_IN"
-                            ? "bg-go text-white"
-                            : "border-2 border-line bg-card text-ink-soft active:border-go"
+                            ? "bg-ink text-white"
+                            : "border-2 border-ink bg-transparent text-ink hover:bg-ink hover:text-white"
                         )}
                       >
                         {st === "CHECKED_IN" ? "✓ Here" : "Check in"}

@@ -54,10 +54,10 @@ export default async function VolunteersPage({
       {users.length === 0 ? (
         <EmptyState title="Nobody matches that search" />
       ) : (
-        <div className="space-y-2">
+        <div className="border-b border-line">
           {users.map((u) => (
             <Link key={u.id} href={`/admin/volunteers/${u.id}`} className="block">
-              <Card className="flex flex-wrap items-center justify-between gap-3 py-3 transition-colors hover:border-ted">
+              <Card className="flex flex-wrap items-center justify-between gap-3 rounded-none border-x-0 border-t-0 px-0 py-3.5 transition-colors hover:bg-paper-2">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-bold text-ink">{u.name}</p>

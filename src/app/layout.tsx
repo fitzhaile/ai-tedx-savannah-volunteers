@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Display face: confident editorial grotesk for headlines, numerals, wordmark.
+const display = Bricolage_Grotesque({
+  variable: "--font-display",
   subsets: ["latin"],
+  axes: ["opsz", "wdth"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Body face: quiet and highly legible on phones.
+const body = Inter({
+  variable: "--font-body",
   subsets: ["latin"],
 });
 
@@ -27,11 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${display.variable} ${body.variable} antialiased`}>{children}</body>
     </html>
   );
 }

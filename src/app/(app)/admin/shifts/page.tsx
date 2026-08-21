@@ -63,10 +63,10 @@ export default async function AdminShiftsPage({
             key={f.key}
             href={f.key === "all" ? "/admin/shifts" : `/admin/shifts?filter=${f.key}`}
             className={cn(
-              "rounded-full border px-3.5 py-1.5 text-xs font-bold whitespace-nowrap",
+              "rounded-full border-2 px-3.5 py-1 text-xs font-extrabold whitespace-nowrap transition-colors",
               filter === f.key
-                ? "border-ted bg-ted-soft text-ted-dark"
-                : "border-line bg-card text-ink-soft hover:border-ink-faint"
+                ? "border-ink bg-ink text-white"
+                : "border-ink text-ink hover:bg-ink hover:text-white"
             )}
           >
             {f.label}
@@ -77,10 +77,10 @@ export default async function AdminShiftsPage({
       {rows.length === 0 ? (
         <EmptyState title="No shifts match this filter" />
       ) : (
-        <div className="space-y-2">
+        <div className="border-b border-line">
           {rows.map((s) => (
             <Link key={s.id} href={`/admin/shifts/${s.id}`} className="block">
-              <Card className="flex flex-wrap items-center justify-between gap-3 py-3 transition-colors hover:border-ted">
+              <Card className="flex flex-wrap items-center justify-between gap-3 rounded-none border-x-0 border-t-0 px-0 py-3.5 transition-colors hover:bg-paper-2">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-bold text-ink">{s.title}</p>

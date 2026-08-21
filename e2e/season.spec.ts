@@ -26,8 +26,9 @@ test.afterAll(async () => {
 });
 
 function shiftCard(page: Page, title: string) {
+  // Shift rows are <article>s on the board and <Card>s on My Shifts.
   return page
-    .locator("div.rounded-xl.border")
+    .locator("article, div.rounded-lg")
     .filter({ has: page.getByRole("heading", { name: title, exact: true }) });
 }
 
@@ -40,14 +41,14 @@ test("volunteer joins, signs up (capacity updates), and cancels with a reason", 
   await page.getByRole("button", { name: "Join the volunteer crew" }).click();
 
   await expect(page).toHaveURL(/\/shifts/);
-  await expect(page.getByText("You're in!")).toBeVisible();
+  await expect(page.getByText("You're in.")).toBeVisible();
 
   // Sign up for Swag Bag Stuffing (seeded at 3 of 6 filled).
   const card = shiftCard(page, "Swag Bag Stuffing");
-  await expect(card.getByText("3 of 6 filled")).toBeVisible();
+  await expect(card.getByText("3 spots left")).toBeVisible();
   await card.getByRole("button", { name: "Sign up" }).click();
   await expect(card.getByText("You're signed up")).toBeVisible();
-  await expect(card.getByText("4 of 6 filled")).toBeVisible();
+  await expect(card.getByText("2 spots left")).toBeVisible();
 
   // A full shift offers the waitlist instead.
   const full = shiftCard(page, "Green Room Support");

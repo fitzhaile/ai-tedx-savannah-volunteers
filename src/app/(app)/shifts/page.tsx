@@ -4,7 +4,7 @@ import { getShiftBoard } from "@/lib/queries/shifts";
 import { ShiftCard } from "@/components/ShiftCard";
 import { ClaimCard } from "@/components/client/ClaimCard";
 import { PageHeader, EmptyState, Badge } from "@/components/ui";
-import { dayKey, fmtDay, fmtShiftWhen } from "@/lib/dates";
+import { dayKey, fmtShiftWhen } from "@/lib/dates";
 import { formatInTimeZone } from "date-fns-tz";
 import { TZ } from "@/lib/dates";
 
@@ -12,6 +12,24 @@ export const metadata = { title: "Shifts" };
 export const dynamic = "force-dynamic";
 
 const EVENT_DAY = "2027-05-15";
+
+/** Calendar-style day masthead: big numeral, weekday, month. */
+function DayMasthead({ date, tag }: { date: Date; tag?: React.ReactNode }) {
+  return (
+    <div className="mb-1 flex items-end gap-4 border-t-4 border-ink pt-3">
+      <span className="font-display text-6xl leading-none font-extrabold text-ink">
+        {formatInTimeZone(date, TZ, "d")}
+      </span>
+      <div className="pb-1">
+        <p className="eyebrow text-ted">{formatInTimeZone(date, TZ, "EEEE")}</p>
+        <p className="font-display text-lg leading-tight font-extrabold text-ink">
+          {formatInTimeZone(date, TZ, "MMMM yyyy")}
+        </p>
+      </div>
+      {tag ? <div className="pb-2">{tag}</div> : null}
+    </div>
+  );
+}
 
 export default async function ShiftsPage({
   searchParams,
@@ -42,15 +60,17 @@ export default async function ShiftsPage({
 
   const dayChips = [...dayGroups.keys()].map((k) => ({
     id: `d-${k}`,
-    label: formatInTimeZone(dayGroups.get(k)![0].startsAt, TZ, "EEE, MMM d"),
+    label: formatInTimeZone(dayGroups.get(k)![0].startsAt, TZ, "EEE d"),
   }));
-  if (coaching.length > 0) dayChips.push({ id: "coaching", label: "Speaker Coaching" });
+  if (coaching.length > 0) dayChips.push({ id: "coaching", label: "Coaching" });
+
+  const openSpots = board.reduce((n, s) => n + Math.max(0, s.capacity - s.filled), 0);
 
   return (
     <div>
       {welcome ? (
-        <div className="mb-5 rounded-xl bg-go-soft p-4 text-sm">
-          <p className="font-bold text-ink">You&apos;re in! 🎉</p>
+        <div className="mb-6 border-l-4 border-ted bg-ted-soft px-4 py-3 text-sm">
+          <p className="font-display font-extrabold text-ink">You&apos;re in.</p>
           <p className="mt-0.5 text-ink-soft">
             Grab any shifts below — you&apos;ll get a confirmation email for each one.
           </p>
@@ -65,18 +85,19 @@ export default async function ShiftsPage({
       ) : null}
 
       <PageHeader
+        eyebrow="Volunteer shifts"
         title="Open shifts"
-        subtitle="First come, first served — spots are limited on every shift."
+        subtitle={`First come, first served — ${openSpots} spot${openSpots === 1 ? "" : "s"} still open across ${board.length} shift${board.length === 1 ? "" : "s"}.`}
       />
 
       {dayChips.length > 1 ? (
-        <div className="sticky top-24 z-30 -mx-4 mb-6 overflow-x-auto bg-paper/95 px-4 py-2 backdrop-blur">
+        <div className="sticky top-[5.75rem] z-30 -mx-4 mb-8 overflow-x-auto bg-paper/95 px-4 py-2 backdrop-blur">
           <div className="flex gap-2">
             {dayChips.map((c) => (
               <a
                 key={c.id}
                 href={`#${c.id}`}
-                className="rounded-full border border-line bg-card px-3.5 py-1.5 text-xs font-bold whitespace-nowrap text-ink-soft hover:border-ted hover:text-ted"
+                className="rounded-full border-2 border-ink px-3.5 py-1 text-xs font-extrabold whitespace-nowrap text-ink transition-colors hover:bg-ink hover:text-white"
               >
                 {c.label}
               </a>
@@ -92,14 +113,14 @@ export default async function ShiftsPage({
         />
       ) : null}
 
-      <div className="space-y-10">
+      <div className="space-y-14">
         {[...dayGroups.entries()].map(([k, shifts]) => (
-          <section key={k} id={`d-${k}`} className="scroll-mt-28">
-            <div className="mb-3 flex items-center gap-2">
-              <h2 className="text-lg font-extrabold text-ink">{fmtDay(shifts[0].startsAt)}</h2>
-              {k === EVENT_DAY ? <Badge tone="red">Event Day</Badge> : null}
-            </div>
-            <div className="space-y-3">
+          <section key={k} id={`d-${k}`} className="scroll-mt-36">
+            <DayMasthead
+              date={shifts[0].startsAt}
+              tag={k === EVENT_DAY ? <Badge tone="red">Event day</Badge> : null}
+            />
+            <div>
               {shifts.map((s) => (
                 <ShiftCard key={s.id} shift={s} past={s.endsAt < currentTime} />
               ))}
@@ -108,22 +129,24 @@ export default async function ShiftsPage({
         ))}
 
         {coaching.length > 0 ? (
-          <section id="coaching" className="scroll-mt-28">
-            <div className="mb-1 flex items-center gap-2">
-              <h2 className="text-lg font-extrabold text-ink">Speaker Coaching</h2>
-              <Badge tone="blue">March–April</Badge>
+          <section id="coaching" className="scroll-mt-36">
+            <div className="border-t-4 border-ink pt-3">
+              <p className="eyebrow text-ted">March – April</p>
+              <h2 className="mt-1 font-display text-3xl font-extrabold text-ink">
+                Speaker Coaching
+              </h2>
+              <p className="mt-2 max-w-prose text-sm text-ink-soft">
+                Evening sessions helping our speakers rehearse in the months before the
+                event. Low-key, fascinating, and a great way to meet the speakers early.
+              </p>
             </div>
-            <p className="mb-4 text-sm text-ink-soft">
-              Evening sessions helping our speakers rehearse in the months before the
-              event. Low-key, fascinating, and a great way to meet the speakers early.
-            </p>
-            <div className="space-y-6">
+            <div className="mt-6 space-y-10">
               {[...coachingGroups.entries()].map(([k, shifts]) => (
                 <div key={k}>
-                  <h3 className="mb-2 text-sm font-bold text-ink-soft">
-                    {fmtDay(shifts[0].startsAt)}
-                  </h3>
-                  <div className="space-y-3">
+                  <p className="mb-1 font-display text-base font-extrabold text-ink">
+                    {formatInTimeZone(shifts[0].startsAt, TZ, "EEEE, MMMM d")}
+                  </p>
+                  <div>
                     {shifts.map((s) => (
                       <ShiftCard key={s.id} shift={s} past={s.endsAt < currentTime} />
                     ))}
