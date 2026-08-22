@@ -23,7 +23,7 @@ export default async function BoardComposePage({
   });
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <PageHeader
         title="Email your volunteers"
         subtitle="Goes out as a normal email — replies come back to your inbox."

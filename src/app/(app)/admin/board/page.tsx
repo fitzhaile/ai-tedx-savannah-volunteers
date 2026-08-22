@@ -24,7 +24,7 @@ export default async function BoardAdminPage() {
   const unread = await unreadByUserForManager();
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <PageHeader
         title="Board members"
         subtitle="Board members see staffing for the shifts they own and can email their volunteers. Assign shifts to them on each shift's edit page."

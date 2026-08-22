@@ -21,7 +21,7 @@ export default async function SlotsPage() {
   }));
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <PageHeader
         title="Standard shift times"
         subtitle="Board members' volunteer needs fit into these slots — it keeps the schedule sane. Custom-time shifts stay possible for special occasions."

@@ -40,6 +40,9 @@ export function ProfileForm({
         <Button type="submit" variant="secondary" disabled={pending}>
           {pending ? "Saving…" : "Save changes"}
         </Button>
+        <Button type="reset" variant="ghost" disabled={pending}>
+          Cancel
+        </Button>
         {state.sent ? <span className="text-sm font-semibold text-go">Saved ✓</span> : null}
       </div>
     </form>

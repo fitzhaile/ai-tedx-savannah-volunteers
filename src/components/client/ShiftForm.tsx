@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { saveShiftAction, type FormState } from "@/lib/actions/admin-actions";
-import { Button, Input, Label, Select, Textarea, FieldHint } from "@/components/primitives";
+import { Button, ButtonLink, Input, Label, Select, Textarea, FieldHint } from "@/components/primitives";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -183,9 +183,14 @@ export function ShiftForm({
       </div>
 
       {state.error ? <p className="text-sm font-semibold text-ted">{state.error}</p> : null}
-      <Button type="submit" disabled={pending}>
-        {pending ? "Saving…" : shift?.id ? "Save changes" : "Create shift"}
-      </Button>
+      <div className="flex items-center gap-4">
+        <Button type="submit" disabled={pending}>
+          {pending ? "Saving…" : shift?.id ? "Save changes" : "Create shift"}
+        </Button>
+        <ButtonLink href="/admin/shifts" variant="ghost">
+          Cancel
+        </ButtonLink>
+      </div>
     </form>
   );
 }

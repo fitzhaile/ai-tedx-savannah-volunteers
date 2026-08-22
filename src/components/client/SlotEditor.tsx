@@ -14,7 +14,15 @@ export interface SlotRowData {
   shiftCount: number;
 }
 
-function SlotForm({ slot, onDone }: { slot?: SlotRowData; onDone?: () => void }) {
+function SlotForm({
+  slot,
+  onDone,
+  onCancel,
+}: {
+  slot?: SlotRowData;
+  onDone?: () => void;
+  onCancel?: () => void;
+}) {
   const [state, action, pending] = useActionState<FormState, FormData>(
     async (prev, fd) => {
       const r = await saveSlotAction(prev, fd);
@@ -45,9 +53,16 @@ function SlotForm({ slot, onDone }: { slot?: SlotRowData; onDone?: () => void })
         <Label className="text-xs">Ends</Label>
         <Input name="endsAt" type="datetime-local" defaultValue={slot?.endsAt ?? ""} required />
       </div>
-      <Button type="submit" variant="secondary" disabled={pending}>
-        {pending ? "Saving…" : slot ? "Save" : "Add slot"}
-      </Button>
+      <div className="flex items-center gap-4">
+        <Button type="submit" variant="secondary" disabled={pending}>
+          {pending ? "Saving…" : slot ? "Save" : "Add slot"}
+        </Button>
+        {onCancel ? (
+          <Button type="button" variant="ghost" onClick={onCancel} disabled={pending}>
+            Cancel
+          </Button>
+        ) : null}
+      </div>
       {state.error ? (
         <p className="text-sm font-semibold text-ted sm:col-span-4">{state.error}</p>
       ) : null}
@@ -71,6 +86,7 @@ export function SlotEditor({ slots }: { slots: SlotRowData[] }) {
                 setEditing(null);
                 router.refresh();
               }}
+              onCancel={() => setEditing(null)}
             />
           </Card>
         ) : (

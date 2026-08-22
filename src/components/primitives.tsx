@@ -18,14 +18,19 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const variantMap = {
   primary: { variant: "default", className: "font-semibold" },
-  // Light fill + visible border so it reads as a button on white, without
-  // competing with the red primary (shadcn's bare outline hid against cards).
+  // Solid near-black: unmistakably a button on white pages, and distinct from
+  // the red primary (the outline and muted-fill versions hid against cards).
   secondary: {
     variant: "outline",
     className:
-      "border-foreground/20 bg-muted font-semibold hover:border-foreground/30 hover:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_6%)]",
+      "border-transparent bg-foreground text-background hover:border-transparent hover:bg-foreground/85 hover:text-background",
   },
-  ghost: { variant: "ghost", className: "font-semibold" },
+  // Tertiary actions read as underlined text, not as a washed-out button.
+  ghost: {
+    variant: "link",
+    className:
+      "h-auto px-0 font-semibold text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground",
+  },
   danger: { variant: "destructive", className: "font-semibold" },
   /** Inline text action (no box). */
   link: { variant: "link", className: "h-auto px-0 font-semibold" },

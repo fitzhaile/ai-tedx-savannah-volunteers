@@ -23,7 +23,7 @@ export default async function DevPage() {
   ]);
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <PageHeader
         title="⏱ Time travel"
         subtitle={
