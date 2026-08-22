@@ -18,7 +18,13 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const variantMap = {
   primary: { variant: "default", className: "font-semibold" },
-  secondary: { variant: "outline", className: "font-semibold" },
+  // Light fill + visible border so it reads as a button on white, without
+  // competing with the red primary (shadcn's bare outline hid against cards).
+  secondary: {
+    variant: "outline",
+    className:
+      "border-foreground/20 bg-muted font-semibold hover:border-foreground/30 hover:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_6%)]",
+  },
   ghost: { variant: "ghost", className: "font-semibold" },
   danger: { variant: "destructive", className: "font-semibold" },
   /** Inline text action (no box). */
