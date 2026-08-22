@@ -81,15 +81,17 @@ function layout(opts: {
   bodyHtml: string;
   ctaText?: string;
   ctaUrl?: string;
+  ctaStyle?: "solid" | "outline";
   footerNote?: string;
 }): string {
   const eyebrow = opts.eyebrow
     ? `<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${RED};">${escapeHtml(opts.eyebrow)}</p>`
     : "";
+  const outline = opts.ctaStyle === "outline";
   const cta =
     opts.ctaText && opts.ctaUrl
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td style="border-radius:10px;background:${RED};">
-           <a href="${opts.ctaUrl}" style="display:inline-block;padding:12px 22px;border-radius:10px;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;">${escapeHtml(opts.ctaText)}</a>
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td style="border-radius:10px;${outline ? `border:2px solid ${RED};background:#ffffff;` : `background:${RED};`}">
+           <a href="${opts.ctaUrl}" style="display:inline-block;padding:${outline ? "10px 20px" : "12px 22px"};border-radius:10px;color:${outline ? RED : "#ffffff"};text-decoration:none;font-weight:600;font-size:15px;">${escapeHtml(opts.ctaText)}</a>
          </td></tr></table>`
       : "";
   const note = opts.footerNote ?? "Questions? Just reply to this email — it goes straight to the volunteer manager.";
@@ -117,6 +119,19 @@ function layout(opts: {
     </table>
   </td></tr></table>
 </body></html>`;
+}
+
+/** Small muted context line used where the message itself is the news. */
+function contextLine(text: string): string {
+  return `<p style="margin:0 0 12px;font-size:14px;color:${MUTED};">${escapeHtml(text)}</p>`;
+}
+
+/** The message as the hero: a bordered card at body size, sender underneath. */
+function messageCard(body: string, from: string): string {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;width:100%;border:1px solid ${LINE};border-radius:10px;border-collapse:separate;"><tr><td style="padding:16px 18px;">
+    <div style="font-size:15px;line-height:1.6;color:${INK};white-space:pre-wrap;">${escapeHtml(body)}</div>
+    <div style="margin-top:12px;font-size:13px;color:${MUTED};">— ${escapeHtml(from)}</div>
+  </td></tr></table>`;
 }
 
 function heading(text: string): string {
@@ -297,35 +312,35 @@ export function buildEmail(kind: EmailKind, p: EmailParams, loginUrl: string): R
           ctaUrl: loginUrl,
         }),
       };
-    case "DIRECT_MESSAGE":
+    case "DIRECT_MESSAGE": {
+      const sender = String(p.senderName ?? "TEDxSavannah");
       return {
-        subject: `New message from ${String(p.senderName ?? "TEDxSavannah")}`,
+        subject: `New message from ${sender}`,
         html: layout({
           eyebrow: EYEBROW[kind],
           preview: String(p.body ?? "").slice(0, 90),
-          bodyHtml:
-            heading(`Hi ${name},`) +
-            paragraphs(String(p.body ?? "")) +
-            `<p style="margin:8px 0 0;color:#5a5a60;font-size:13px;">— ${escapeHtml(String(p.senderName ?? "TEDxSavannah"))}</p>`,
+          bodyHtml: contextLine(`${sender} sent you a message`) + messageCard(String(p.body ?? ""), sender),
           ctaText: "Open the conversation",
           ctaUrl: loginUrl,
+          ctaStyle: "outline",
           footerNote:
             "Or just reply to this email — it goes straight into the conversation.",
         }),
       };
+    }
     case "THREAD_REPLY_NOTICE": {
+      const member = String(p.memberName);
       const preview = String(p.body ?? "");
       const short = preview.length > 300 ? `${preview.slice(0, 300)}…` : preview;
       return {
-        subject: `${String(p.memberName)} sent you a message`,
+        subject: `${member} sent you a message`,
         html: layout({
           eyebrow: EYEBROW[kind],
           preview: short.slice(0, 90),
-          bodyHtml:
-            heading(`${String(p.memberName)} wrote:`) +
-            `<p style="margin:0 0 14px;padding:10px 14px;background:#fafafa;border-left:3px solid ${RED};color:${INK};white-space:pre-wrap;">${escapeHtml(short)}</p>`,
+          bodyHtml: contextLine(`${member} replied`) + messageCard(short, member),
           ctaText: "Open the conversation",
           ctaUrl: loginUrl,
+          ctaStyle: "outline",
           footerNote: "You're receiving this because a volunteer wrote to you in the app.",
         }),
       };
