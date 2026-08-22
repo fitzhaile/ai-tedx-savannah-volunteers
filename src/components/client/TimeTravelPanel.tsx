@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Input, Label, FieldHint, Textarea } from "@/components/primitives";
+import { Button, Card, Input, Label, FieldHint, Textarea, Select } from "@/components/primitives";
 import {
   setSimulatedNowAction,
   runSchedulerAction,
@@ -12,6 +12,21 @@ import {
   simulateInboundEmailAction,
   sendSampleEmailsAction,
 } from "@/lib/actions/dev-actions";
+
+const SAMPLE_KINDS = [
+  { value: "MAGIC_LINK", label: "Sign-in link" },
+  { value: "WELCOME", label: "Welcome" },
+  { value: "BOARD_INVITE", label: "Board invite" },
+  { value: "SIGNUP_CONFIRM", label: "Signup confirmation" },
+  { value: "CANCEL_CONFIRM", label: "Cancel confirmation" },
+  { value: "CANCEL_ALERT", label: "Cancel alert" },
+  { value: "REMOVED_NOTICE", label: "Removed notice" },
+  { value: "REMINDER", label: "Shift reminder" },
+  { value: "BROADCAST", label: "Broadcast" },
+  { value: "SPOT_OPENED", label: "Spot opened" },
+  { value: "DIRECT_MESSAGE", label: "Direct message" },
+  { value: "THREAD_REPLY_NOTICE", label: "Reply notice" },
+];
 
 const PRESETS: { label: string; value: string; hint: string }[] = [
   { label: "Dec 1, 2026", value: "2026-12-01T09:00", hint: "Signups open" },
@@ -37,6 +52,7 @@ export function TimeTravelPanel({
   const [simBody, setSimBody] = useState("");
   const [simReply, setSimReply] = useState(false);
   const [simResult, setSimResult] = useState<string | null>(null);
+  const [sampleKind, setSampleKind] = useState("DIRECT_MESSAGE");
 
   const jump = (value: string | null) =>
     startTransition(async () => {
@@ -204,6 +220,33 @@ export function TimeTravelPanel({
             }
           >
             Email me one of each
+          </Button>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Select
+            aria-label="Email kind"
+            value={sampleKind}
+            onChange={(e) => setSampleKind(e.target.value)}
+            className="w-auto"
+          >
+            {SAMPLE_KINDS.map((k) => (
+              <option key={k.value} value={k.value}>
+                {k.label}
+              </option>
+            ))}
+          </Select>
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => {
+                setSchedResult(await sendSampleEmailsAction([sampleKind]));
+                router.refresh();
+              })
+            }
+          >
+            Email me just this one
           </Button>
         </div>
       </Card>

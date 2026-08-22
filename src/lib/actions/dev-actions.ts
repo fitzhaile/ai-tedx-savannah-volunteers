@@ -152,14 +152,16 @@ export async function resetForProductionAction(): Promise<string> {
   return "All demo data removed. Only your manager account remains — ready for real volunteers.";
 }
 
-/** Send the manager one real example of every email template. */
-export async function sendSampleEmailsAction(): Promise<string> {
+/** Send the manager one real example of every email template (or just some kinds). */
+export async function sendSampleEmailsAction(kinds?: string[]): Promise<string> {
   const manager = await requireManager();
   assertEnabled();
+  const wanted = kinds?.length ? SAMPLE_EMAILS.filter((s) => kinds.includes(s.kind)) : SAMPLE_EMAILS;
+  if (wanted.length === 0) return "No matching email kind.";
   // Send in parallel so the whole batch fits comfortably inside the
   // serverless time limit (Gmail SMTP is ~1–2s per message).
   const results = await Promise.all(
-    SAMPLE_EMAILS.map((sample) =>
+    wanted.map((sample) =>
       sendNow({
         kind: sample.kind,
         toEmail: manager.email,
@@ -173,5 +175,5 @@ export async function sendSampleEmailsAction(): Promise<string> {
   const failed = results.length - sent;
   revalidatePath("/admin/messages");
   const where = (process.env.EMAIL_TRANSPORT ?? "console") === "gmail" ? manager.email : "the outbox only (console mode)";
-  return `Sent ${sent} of ${SAMPLE_EMAILS.length} sample emails to ${where}${failed ? ` — ${failed} failed; see Admin → Messages` : ""}.`;
+  return `Sent ${sent} of ${wanted.length} sample email${wanted.length === 1 ? "" : "s"} to ${where}${failed ? ` — ${failed} failed; see Admin → Messages` : ""}.`;
 }
