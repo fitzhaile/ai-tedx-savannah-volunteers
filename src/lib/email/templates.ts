@@ -92,8 +92,8 @@ function layout(opts: {
     ? ""
     : opts.ctaStyle === "link"
       ? `<p style="margin:4px 0 4px;font-size:14px;"><a href="${opts.ctaUrl}" style="color:${RED};font-weight:600;text-decoration:underline;">${escapeHtml(opts.ctaText)} &rarr;</a></p>`
-      : `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td style="border-radius:10px;background:${RED};">
-           <a href="${opts.ctaUrl}" style="display:inline-block;padding:12px 22px;border-radius:10px;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;">${escapeHtml(opts.ctaText)}</a>
+      : `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td style="border-radius:8px;background:${RED};">
+           <a href="${opts.ctaUrl}" style="display:inline-block;padding:10px 18px;border-radius:8px;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;">${escapeHtml(opts.ctaText)}</a>
          </td></tr></table>`;
   const note = opts.footerNote ?? "Questions? Just reply to this email — it goes straight to the volunteer manager.";
   return `<!doctype html><html><body style="margin:0;padding:0;background:${MUTED_BG};font-family:${FONT};">
