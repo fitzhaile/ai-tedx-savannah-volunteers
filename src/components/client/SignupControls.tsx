@@ -110,7 +110,7 @@ export function SignupControls({
         onClose={() => setCancelOpen(false)}
         title={active?.status === "WAITLISTED" ? "Leave the waitlist?" : "Cancel this shift?"}
       >
-        <p className="mb-3 text-sm text-ink-soft">
+        <p className="mb-3 text-sm text-muted-foreground">
           {active?.status === "WAITLISTED"
             ? `You'll be removed from the waitlist for “${shiftTitle}”.`
             : `You'll be taken off the roster for “${shiftTitle}” and the spot opens up for someone else.`}

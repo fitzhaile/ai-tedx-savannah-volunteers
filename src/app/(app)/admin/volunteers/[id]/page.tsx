@@ -62,11 +62,11 @@ export default async function VolunteerDetailPage({
       <div className="grid items-start gap-6 lg:grid-cols-2">
         <div className="space-y-6">
           <Card>
-            <h2 className="mb-4 text-sm font-extrabold text-ink">Contact & notes</h2>
+            <h2 className="mb-4 text-sm font-bold text-foreground">Contact & notes</h2>
             <VolunteerEditForm user={user} />
           </Card>
           <Card>
-            <h2 className="mb-4 text-sm font-extrabold text-ink">Tools</h2>
+            <h2 className="mb-4 text-sm font-bold text-foreground">Tools</h2>
             <VolunteerTools
               userId={user.id}
               name={user.name}
@@ -79,7 +79,7 @@ export default async function VolunteerDetailPage({
         <div className="space-y-6">
         {thread !== null ? (
           <Card>
-            <h2 className="mb-3 text-sm font-extrabold text-ink">Conversation</h2>
+            <h2 className="mb-3 text-sm font-bold text-foreground">Conversation</h2>
             <ThreadPanel
               viewer="manager"
               threadUserId={user.id}
@@ -89,7 +89,7 @@ export default async function VolunteerDetailPage({
           </Card>
         ) : null}
         <Card>
-          <h2 className="mb-3 text-sm font-extrabold text-ink">Shift history</h2>
+          <h2 className="mb-3 text-sm font-bold text-foreground">Shift history</h2>
           {user.signups.length === 0 ? (
             <EmptyState title="No signups yet" />
           ) : (
@@ -99,20 +99,20 @@ export default async function VolunteerDetailPage({
                 return (
                   <div
                     key={s.id}
-                    className="flex items-start justify-between gap-3 border-b border-line pb-2 last:border-0"
+                    className="flex items-start justify-between gap-3 border-b border-border pb-2 last:border-0"
                   >
                     <div className="min-w-0">
                       <Link
                         href={`/admin/shifts/${s.shiftId}`}
-                        className="text-sm font-bold text-ink hover:underline"
+                        className="text-sm font-bold text-foreground hover:underline"
                       >
                         {s.shift.title}
                       </Link>
-                      <p className="text-xs text-ink-soft">
+                      <p className="text-xs text-muted-foreground">
                         {fmtShiftWhen(s.shift.startsAt, s.shift.endsAt)}
                       </p>
                       {s.cancelNote ? (
-                        <p className="mt-0.5 text-xs text-ink-soft italic">“{s.cancelNote}”</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground italic">“{s.cancelNote}”</p>
                       ) : null}
                     </div>
                     <Badge tone={b.tone}>{b.label}</Badge>

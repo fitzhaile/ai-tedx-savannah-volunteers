@@ -42,7 +42,7 @@ export default async function EmailViewerPage({ params }: { params: Promise<{ id
       <iframe
         srcDoc={html}
         sandbox=""
-        className="h-[70vh] w-full rounded-xl border border-line bg-white"
+        className="h-[70vh] w-full rounded-xl border border-border bg-white"
         title="Email preview"
       />
     </div>

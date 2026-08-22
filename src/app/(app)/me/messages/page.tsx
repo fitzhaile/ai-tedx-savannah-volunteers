@@ -28,7 +28,7 @@ export default async function MessagesPage() {
           messages={thread}
         />
       </Card>
-      <p className="mt-3 text-xs text-ink-soft">
+      <p className="mt-3 text-xs text-muted-foreground">
         Prefer email? Just reply to any email from us — it shows up here too.
       </p>
     </div>

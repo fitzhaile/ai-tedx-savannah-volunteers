@@ -74,9 +74,12 @@ test("manager sees the reply, unread badges, and the reply-notice email", async 
   await page.goto("/admin/volunteers");
   await expect(page.getByText(/💬 1 new/).first()).toBeVisible();
 
-  // The thread shows the reply; viewing clears the badge.
+  // The thread shows the reply; viewing clears the badge. The clear is a server
+  // action fired after mount, so wait for that POST to land before navigating away.
+  const markedRead = page.waitForResponse((r) => r.request().method() === "POST" && r.ok());
   await page.goto(`/admin/volunteers/${memberId}`);
   await expect(page.getByText("Yes! Sign me up.")).toBeVisible();
+  await markedRead;
   await page.goto("/admin/volunteers");
   await expect(page.getByText(/💬 1 new/)).toHaveCount(0);
 

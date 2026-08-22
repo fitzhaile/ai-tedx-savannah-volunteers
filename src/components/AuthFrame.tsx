@@ -33,11 +33,11 @@ export function AuthFrame({
         </p>
       </aside>
       <main className="mx-auto w-full max-w-md px-6 py-10 lg:max-w-lg lg:self-center lg:px-12">
-        <h1 className="font-display text-3xl font-extrabold text-ink">{title}</h1>
-        <p className="mt-2 text-sm text-ink-soft">{subtitle}</p>
+        <h1 className="font-display text-3xl font-bold text-foreground">{title}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
         {banner ? <div className="mt-5">{banner}</div> : null}
         <div className="mt-7">{children}</div>
-        <p className="mt-6 text-sm text-ink-soft">{footer}</p>
+        <p className="mt-6 text-sm text-muted-foreground">{footer}</p>
       </main>
     </div>
   );

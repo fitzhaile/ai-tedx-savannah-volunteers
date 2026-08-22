@@ -9,9 +9,9 @@ export function SigninForm() {
 
   if (state.sent) {
     return (
-      <div className="rounded-xl bg-go-soft p-4 text-sm text-ink">
+      <div className="rounded-xl bg-go-soft p-4 text-sm text-foreground">
         <p className="font-bold">Check your email 📬</p>
-        <p className="mt-1 text-ink-soft">
+        <p className="mt-1 text-muted-foreground">
           If that address is registered, a sign-in link is on its way. It works for 15
           minutes.
         </p>

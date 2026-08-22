@@ -9,6 +9,7 @@ import {
   adminRemoveFromShift,
   adminSetSignupStatus,
 } from "@/lib/actions/admin-actions";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export interface RosterEntry {
   signupId: string;
@@ -70,9 +71,9 @@ export function RosterPanel({
     });
 
   const Row = ({ e, actions }: { e: RosterEntry; actions: React.ReactNode }) => (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line py-2.5 last:border-0">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border py-2.5 last:border-0">
       <div className="min-w-0">
-        <p className="text-sm font-bold text-ink">
+        <p className="text-sm font-bold text-foreground">
           {e.name}
           {e.status === "CHECKED_IN" ? (
             <Badge tone="green" className="ml-2">
@@ -85,7 +86,7 @@ export function RosterPanel({
             </Badge>
           ) : null}
         </p>
-        <p className="text-xs text-ink-soft">
+        <p className="text-xs text-muted-foreground">
           {e.email}
           {e.phone ? ` · ${e.phone}` : ""}
         </p>
@@ -97,14 +98,14 @@ export function RosterPanel({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <h3 className="text-sm font-extrabold text-ink">
+        <h3 className="text-sm font-bold text-foreground">
           Roster · {confirmed.length}/{capacity}
         </h3>
         {confirmed.length > capacity ? <Badge tone="amber">Over capacity</Badge> : null}
       </div>
 
       {confirmed.length === 0 ? (
-        <p className="py-3 text-sm text-ink-faint">Nobody yet.</p>
+        <p className="py-3 text-sm text-muted-foreground">Nobody yet.</p>
       ) : (
         confirmed.map((e) => (
           <Row
@@ -136,7 +137,7 @@ export function RosterPanel({
 
       {noShows.length > 0 ? (
         <>
-          <h4 className="mt-4 mb-1 text-xs font-extrabold tracking-wide text-ink-soft uppercase">
+          <h4 className="mt-4 mb-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             No-shows
           </h4>
           {noShows.map((e) => (
@@ -160,7 +161,7 @@ export function RosterPanel({
 
       {waitlist.length > 0 ? (
         <>
-          <h4 className="mt-4 mb-1 text-xs font-extrabold tracking-wide text-ink-soft uppercase">
+          <h4 className="mt-4 mb-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             Waitlist · {waitlist.length}
           </h4>
           {waitlist.map((e) => (
@@ -197,7 +198,7 @@ export function RosterPanel({
         </>
       ) : null}
 
-      <div className="mt-4 border-t border-line pt-4">
+      <div className="mt-4 border-t border-border pt-4">
         <Label htmlFor="add-volunteer">Add someone to this shift</Label>
         <div className="flex gap-2">
           <Select
@@ -239,13 +240,8 @@ export function RosterPanel({
             maxLength={500}
           />
         </div>
-        <label className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink">
-          <input
-            type="checkbox"
-            checked={notify}
-            onChange={(e) => setNotify(e.target.checked)}
-            className="h-4 w-4 accent-ted"
-          />
+        <label className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Checkbox checked={notify} onCheckedChange={(v) => setNotify(v === true)} />
           Email them about this change
         </label>
         <div className="flex justify-end gap-2">

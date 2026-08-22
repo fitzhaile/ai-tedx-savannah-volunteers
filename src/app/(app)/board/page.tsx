@@ -70,11 +70,11 @@ export default async function BoardPage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-bold text-ink">{s.title}</h3>
+                      <h3 className="text-sm font-bold text-foreground">{s.title}</h3>
                       {s.category === "COACHING" ? <Badge tone="blue">Coaching</Badge> : null}
                       {isManager && s.owner ? <Badge>{s.owner.name}</Badge> : null}
                     </div>
-                    <p className="text-xs text-ink-soft">{fmtShiftWhen(s.startsAt, s.endsAt)}</p>
+                    <p className="text-xs text-muted-foreground">{fmtShiftWhen(s.startsAt, s.endsAt)}</p>
                   </div>
                   <Badge tone={tone} className="text-sm">
                     {n}/{s.capacity} staffed
@@ -86,16 +86,16 @@ export default async function BoardPage() {
                     {n === 0 ? "No volunteers yet" : `See who's coming (${n})`}
                     {s.waitlisted.length > 0 ? ` · ${s.waitlisted.length} waitlisted` : ""}
                   </summary>
-                  <div className="mt-2 space-y-1.5 border-t border-line pt-2">
+                  <div className="mt-2 space-y-1.5 border-t border-border pt-2">
                     {s.confirmed.length === 0 ? (
-                      <p className="text-xs text-ink-faint">
+                      <p className="text-xs text-muted-foreground">
                         Nobody has signed up yet — the manager can help you fill it.
                       </p>
                     ) : (
                       s.confirmed.map((x) => (
-                        <p key={x.id} className="text-sm text-ink">
+                        <p key={x.id} className="text-sm text-foreground">
                           <span className="font-semibold">{x.user.name}</span>{" "}
-                          <span className="text-xs text-ink-soft">
+                          <span className="text-xs text-muted-foreground">
                             · {x.user.email}
                             {x.user.phone ? ` · ${x.user.phone}` : ""}
                           </span>

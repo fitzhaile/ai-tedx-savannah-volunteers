@@ -28,11 +28,11 @@ export function ClaimCard({ shiftId, shiftTitle, when }: { shiftId: string; shif
   return (
     <div className="mb-6 rounded-xl border-2 border-ted bg-ted-soft p-4">
       <p className="text-sm font-bold text-ted-dark">A spot opened up!</p>
-      <p className="mt-0.5 text-sm text-ink">
+      <p className="mt-0.5 text-sm text-foreground">
         {shiftTitle} · {when}
       </p>
       {result ? (
-        <p className="mt-2 text-sm font-semibold text-ink">{result}</p>
+        <p className="mt-2 text-sm font-semibold text-foreground">{result}</p>
       ) : (
         <Button className="mt-3" disabled={pending} onClick={claim}>
           {pending ? "Claiming…" : "Claim this spot"}

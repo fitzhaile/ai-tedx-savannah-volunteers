@@ -9,9 +9,9 @@ export function JoinForm() {
 
   if (state.sent) {
     return (
-      <div className="rounded-xl bg-go-soft p-4 text-sm text-ink">
+      <div className="rounded-xl bg-go-soft p-4 text-sm text-foreground">
         <p className="font-bold">Welcome back — check your email!</p>
-        <p className="mt-1 text-ink-soft">
+        <p className="mt-1 text-muted-foreground">
           That address is already registered, so we sent you a sign-in link instead.
         </p>
       </div>

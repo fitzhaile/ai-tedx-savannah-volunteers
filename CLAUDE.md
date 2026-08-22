@@ -81,7 +81,11 @@ Postgres on the default port 5432 works; `.env.example` has the shape).
   `#EB0028` as `--primary`, a black sidebar with a red active marker. Bricolage
   Grotesque for display type (`font-display`, applied to h1–h3 globally), Geist
   for UI text. Semantic tokens (`--primary`, `--muted`, `--sidebar`…) and brand
-  utilities (`text-ted`, `bg-ink`…) live in `src/app/globals.css`. Add new
-  shadcn components with `npx shadcn@latest add <name>`.
+  utilities (`text-ted`, `bg-ink`…) live in `src/app/globals.css`. Style with
+  the semantic classes (`text-foreground`, `text-muted-foreground`, `border`,
+  `bg-muted`…); reserve brand utilities for the red accent and black panels.
+  Controls come from `src/components/ui` via `primitives.tsx` — no hand-rolled
+  buttons, pills, checkboxes, or segmented toggles (use `Tabs` for those). Add
+  new shadcn components with `npx shadcn@latest add <name>`.
 - Commit messages: plain descriptions only — no Co-Authored-By lines,
   session links, or other AI-attribution footers.

@@ -42,7 +42,7 @@ export default async function MePage() {
             >
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-bold text-ink">{s.shift.title}</h3>
+                  <h3 className="font-bold text-foreground">{s.shift.title}</h3>
                   {s.shift.category === "COACHING" ? <Badge tone="blue">Coaching</Badge> : null}
                   {s.status === "WAITLISTED" ? <Badge tone="amber">Waitlist</Badge> : null}
                 </div>
@@ -50,11 +50,11 @@ export default async function MePage() {
                   {fmtShiftWhen(s.shift.startsAt, s.shift.endsAt)}
                 </p>
                 {s.shift.location ? (
-                  <p className="mt-0.5 text-sm text-ink-soft">{s.shift.location}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{s.shift.location}</p>
                 ) : null}
                 <a
                   href={`/api/ics/${s.id}`}
-                  className="mt-1 inline-block text-xs font-bold text-ted hover:underline"
+                  className="mt-1 inline-block text-xs font-semibold text-primary hover:underline"
                 >
                   + Add to calendar
                 </a>
@@ -73,13 +73,13 @@ export default async function MePage() {
 
       {past.length > 0 ? (
         <section className="mt-10">
-          <h2 className="mb-3 text-lg font-extrabold text-ink">Past shifts</h2>
+          <h2 className="mb-3 text-lg font-bold text-foreground">Past shifts</h2>
           <div className="space-y-2">
             {past.map((s) => (
               <Card key={s.id} className="flex items-center justify-between py-3">
                 <div>
-                  <p className="text-sm font-bold text-ink">{s.shift.title}</p>
-                  <p className="text-xs text-ink-soft">
+                  <p className="text-sm font-bold text-foreground">{s.shift.title}</p>
+                  <p className="text-xs text-muted-foreground">
                     {fmtShiftWhen(s.shift.startsAt, s.shift.endsAt)}
                   </p>
                 </div>
@@ -97,7 +97,7 @@ export default async function MePage() {
       ) : null}
 
       <section className="mt-10 max-w-md">
-        <h2 className="mb-3 text-lg font-extrabold text-ink">My info</h2>
+        <h2 className="mb-3 text-lg font-bold text-foreground">My info</h2>
         <Card>
           <ProfileForm name={user.name} phone={user.phone} email={user.email} />
         </Card>

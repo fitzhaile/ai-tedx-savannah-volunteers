@@ -99,7 +99,7 @@ export function VolunteerTools({
           in (text it to them), or for testing as this person.
         </FieldHint>
         {link ? (
-          <p className="mt-1 rounded-md bg-line/50 p-2 font-mono text-[10px] break-all text-ink-soft">
+          <p className="mt-1 rounded-md bg-muted p-2 font-mono text-[10px] break-all text-muted-foreground">
             {link}
           </p>
         ) : null}

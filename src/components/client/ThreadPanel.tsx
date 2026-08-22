@@ -71,7 +71,7 @@ export function ThreadPanel({
   return (
     <div>
       {messages.length === 0 ? (
-        <p className="py-6 text-center text-sm text-ink-soft">
+        <p className="py-6 text-center text-sm text-muted-foreground">
           No messages yet — say hi to {counterpartName}!
         </p>
       ) : (
@@ -84,15 +84,15 @@ export function ThreadPanel({
                   className={
                     "max-w-[85%] rounded-2xl px-3.5 py-2.5 " +
                     (isMine
-                      ? "rounded-br-sm bg-ted/10 text-ink"
-                      : "rounded-bl-sm bg-line/50 text-ink")
+                      ? "rounded-br-sm bg-ted/10 text-foreground"
+                      : "rounded-bl-sm bg-muted text-foreground")
                   }
                 >
                   {m.subject ? (
-                    <p className="text-xs font-bold text-ink">{m.subject}</p>
+                    <p className="text-xs font-bold text-foreground">{m.subject}</p>
                   ) : null}
                   <p className="text-sm whitespace-pre-wrap">{m.body}</p>
-                  <p className="mt-1 flex items-center gap-1.5 text-[11px] text-ink-soft">
+                  <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     {m.authorName ? <span>{m.authorName}</span> : null}
                     <span>{formatInTimeZone(new Date(m.createdAtIso), TZ, "MMM d · h:mm a")}</span>
                     {m.source === "EMAIL" ? <Badge tone="neutral">via email</Badge> : null}
@@ -116,7 +116,7 @@ export function ThreadPanel({
         />
         {state.error ? <p className="text-sm font-semibold text-ted">{state.error}</p> : null}
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-ink-soft">
+          <p className="text-xs text-muted-foreground">
             {viewer === "manager"
               ? "They'll get this by email too — replies land right here."
               : "Goes straight to the volunteer manager."}

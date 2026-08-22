@@ -13,7 +13,7 @@ export function SyncNowButton() {
 
   return (
     <div className="flex items-center gap-2">
-      {summary ? <span className="text-xs text-ink-soft">{summary}</span> : null}
+      {summary ? <span className="text-xs text-muted-foreground">{summary}</span> : null}
       <Button
         variant="secondary"
         size="sm"

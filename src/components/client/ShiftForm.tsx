@@ -3,6 +3,8 @@
 import { useActionState, useState } from "react";
 import { saveShiftAction, type FormState } from "@/lib/actions/admin-actions";
 import { Button, Input, Label, Select, Textarea, FieldHint } from "@/components/primitives";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export interface SlotOption {
   id: string;
@@ -81,22 +83,16 @@ export function ShiftForm({
 
       <div>
         <Label>When</Label>
-        <div className="mb-2 flex gap-1 rounded-lg bg-line/50 p-1">
-          <button
-            type="button"
-            onClick={() => setTimeMode("slot")}
-            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-semibold ${timeMode === "slot" ? "bg-card text-ink shadow-xs" : "text-ink-soft"}`}
-          >
-            Standard time slot
-          </button>
-          <button
-            type="button"
-            onClick={() => setTimeMode("custom")}
-            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-semibold ${timeMode === "custom" ? "bg-card text-ink shadow-xs" : "text-ink-soft"}`}
-          >
-            Custom time
-          </button>
-        </div>
+        <Tabs
+          value={timeMode}
+          onValueChange={(v) => setTimeMode(v as "slot" | "custom")}
+          className="mb-2"
+        >
+          <TabsList className="w-full">
+            <TabsTrigger value="slot">Standard time slot</TabsTrigger>
+            <TabsTrigger value="custom">Custom time</TabsTrigger>
+          </TabsList>
+        </Tabs>
         {timeMode === "slot" ? (
           <>
             <Select name="slotId" defaultValue={shift?.slotId ?? ""} required>
@@ -179,13 +175,8 @@ export function ShiftForm({
           <FieldHint>They&apos;ll see this shift on their board dashboard and get cancel alerts.</FieldHint>
         </div>
         <div className="flex items-end pb-1">
-          <label className="flex items-center gap-2 text-sm font-semibold text-ink">
-            <input
-              type="checkbox"
-              name="isPublished"
-              defaultChecked={shift?.isPublished ?? true}
-              className="h-4 w-4 accent-ted"
-            />
+          <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Checkbox name="isPublished" defaultChecked={shift?.isPublished ?? true} />
             Visible to volunteers
           </label>
         </div>
