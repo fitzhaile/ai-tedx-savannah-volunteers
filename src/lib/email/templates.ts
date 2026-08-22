@@ -81,19 +81,20 @@ function layout(opts: {
   bodyHtml: string;
   ctaText?: string;
   ctaUrl?: string;
-  ctaStyle?: "solid" | "outline";
+  /** "solid" is the primary-action button; "link" is a quiet text link for emails where the message itself is the point. */
+  ctaStyle?: "solid" | "link";
   footerNote?: string;
 }): string {
   const eyebrow = opts.eyebrow
     ? `<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${RED};">${escapeHtml(opts.eyebrow)}</p>`
     : "";
-  const outline = opts.ctaStyle === "outline";
-  const cta =
-    opts.ctaText && opts.ctaUrl
-      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td style="border-radius:10px;${outline ? `border:2px solid ${RED};background:#ffffff;` : `background:${RED};`}">
-           <a href="${opts.ctaUrl}" style="display:inline-block;padding:${outline ? "10px 20px" : "12px 22px"};border-radius:10px;color:${outline ? RED : "#ffffff"};text-decoration:none;font-weight:600;font-size:15px;">${escapeHtml(opts.ctaText)}</a>
-         </td></tr></table>`
-      : "";
+  const cta = !(opts.ctaText && opts.ctaUrl)
+    ? ""
+    : opts.ctaStyle === "link"
+      ? `<p style="margin:4px 0 4px;font-size:14px;"><a href="${opts.ctaUrl}" style="color:${RED};font-weight:600;text-decoration:underline;">${escapeHtml(opts.ctaText)} &rarr;</a></p>`
+      : `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 4px;"><tr><td style="border-radius:10px;background:${RED};">
+           <a href="${opts.ctaUrl}" style="display:inline-block;padding:12px 22px;border-radius:10px;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;">${escapeHtml(opts.ctaText)}</a>
+         </td></tr></table>`;
   const note = opts.footerNote ?? "Questions? Just reply to this email — it goes straight to the volunteer manager.";
   return `<!doctype html><html><body style="margin:0;padding:0;background:${MUTED_BG};font-family:${FONT};">
   <div style="display:none;max-height:0;overflow:hidden;">${escapeHtml(opts.preview)}</div>
@@ -122,14 +123,13 @@ function layout(opts: {
 }
 
 /** Small muted context line used where the message itself is the news. */
-function contextLine(text: string): string {
-  return `<p style="margin:0 0 12px;font-size:14px;color:${MUTED};">${escapeHtml(text)}</p>`;
-}
-
-/** The message as the hero: a bordered card at body size, sender underneath. */
+/**
+ * The message as the hero: the first thing in the body, a card with a red rule on the left
+ * (the only red in the body), text a step larger than UI text, sender underneath.
+ */
 function messageCard(body: string, from: string): string {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;width:100%;border:1px solid ${LINE};border-radius:10px;border-collapse:separate;"><tr><td style="padding:16px 18px;">
-    <div style="font-size:15px;line-height:1.6;color:${INK};white-space:pre-wrap;">${escapeHtml(body)}</div>
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;width:100%;border:1px solid ${LINE};border-left:3px solid ${RED};border-radius:0 10px 10px 0;border-collapse:separate;"><tr><td style="padding:16px 20px;">
+    <div style="font-size:16px;line-height:1.6;color:${INK};white-space:pre-wrap;">${escapeHtml(body)}</div>
     <div style="margin-top:12px;font-size:13px;color:${MUTED};">— ${escapeHtml(from)}</div>
   </td></tr></table>`;
 }
@@ -319,10 +319,10 @@ export function buildEmail(kind: EmailKind, p: EmailParams, loginUrl: string): R
         html: layout({
           eyebrow: EYEBROW[kind],
           preview: String(p.body ?? "").slice(0, 90),
-          bodyHtml: contextLine(`${sender} sent you a message`) + messageCard(String(p.body ?? ""), sender),
+          bodyHtml: messageCard(String(p.body ?? ""), sender),
           ctaText: "Open the conversation",
           ctaUrl: loginUrl,
-          ctaStyle: "outline",
+          ctaStyle: "link",
           footerNote:
             "Or just reply to this email — it goes straight into the conversation.",
         }),
@@ -337,10 +337,10 @@ export function buildEmail(kind: EmailKind, p: EmailParams, loginUrl: string): R
         html: layout({
           eyebrow: EYEBROW[kind],
           preview: short.slice(0, 90),
-          bodyHtml: contextLine(`${member} replied`) + messageCard(short, member),
+          bodyHtml: messageCard(short, member),
           ctaText: "Open the conversation",
           ctaUrl: loginUrl,
-          ctaStyle: "outline",
+          ctaStyle: "link",
           footerNote: "You're receiving this because a volunteer wrote to you in the app.",
         }),
       };
