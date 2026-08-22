@@ -8,7 +8,8 @@ import {
   type SendMessageState,
 } from "@/lib/actions/message-actions";
 import { Button, Input, Label, Select, Textarea, FieldHint, Card } from "@/components/primitives";
-import { cn } from "@/lib/cn";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export interface ComposerShiftOption {
   id: string;
@@ -72,8 +73,8 @@ export function MessageComposer({
   if (state.sentTo !== undefined) {
     return (
       <Card>
-        <p className="text-lg font-extrabold text-ink">Sent ✓</p>
-        <p className="mt-1 text-sm text-ink-soft">
+        <p className="text-lg font-bold text-foreground">Sent ✓</p>
+        <p className="mt-1 text-sm text-muted-foreground">
           Your message went to {state.sentTo} {state.sentTo === 1 ? "person" : "people"} (
           {state.audienceLabel}).
           {state.deferred ? (
@@ -86,7 +87,7 @@ export function MessageComposer({
             </>
           ) : null}
         </p>
-        <p className="mt-1 text-sm text-ink-soft">Replies land in your regular email inbox.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Replies land in your regular email inbox.</p>
         <div className="mt-4">
           <Link href={doneHref} className="text-sm font-bold text-ted hover:underline">
             ← Done
@@ -102,23 +103,15 @@ export function MessageComposer({
 
       <div>
         <Label>Who gets this?</Label>
-        <div className="flex flex-wrap gap-2">
-          {kinds.map((k) => (
-            <button
-              key={k.key}
-              type="button"
-              onClick={() => setKind(k.key)}
-              className={cn(
-                "rounded-full border px-3.5 py-1.5 text-xs font-bold",
-                kind === k.key
-                  ? "border-ted bg-ted-soft text-ted-dark"
-                  : "border-line bg-card text-ink-soft hover:border-ink-faint"
-              )}
-            >
-              {k.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={kind} onValueChange={(v) => setKind(v as AudienceKind)}>
+          <TabsList className="flex h-auto w-full flex-wrap justify-start">
+            {kinds.map((k) => (
+              <TabsTrigger key={k.key} value={k.key} className="flex-none">
+                {k.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
 
       {kind === "SHIFT" ? (
@@ -137,16 +130,14 @@ export function MessageComposer({
       {kind === "USERS" && userOptions ? (
         <div>
           <Label>Pick people</Label>
-          <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-line bg-card p-3">
+          <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border bg-card p-3">
             {userOptions.map((u) => (
-              <label key={u.id} className="flex items-center gap-2 text-sm text-ink">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-ted"
+              <label key={u.id} className="flex items-center gap-2 text-sm text-foreground">
+                <Checkbox
                   checked={userIds.includes(u.id)}
-                  onChange={(e) =>
+                  onCheckedChange={(checked) =>
                     setUserIds((prev) =>
-                      e.target.checked ? [...prev, u.id] : prev.filter((x) => x !== u.id)
+                      checked === true ? [...prev, u.id] : prev.filter((x) => x !== u.id)
                     )
                   }
                 />
@@ -157,14 +148,14 @@ export function MessageComposer({
         </div>
       ) : null}
 
-      <div className="rounded-lg bg-line/40 px-3.5 py-2.5 text-sm text-ink-soft">
+      <div className="rounded-lg bg-muted px-3.5 py-2.5 text-sm text-muted-foreground">
         {preview === null ? (
           "Counting recipients…"
         ) : preview.count === 0 ? (
           <span className="font-semibold text-warn">Nobody matches this audience yet.</span>
         ) : (
           <>
-            <span className="font-bold text-ink">{preview.count}</span>{" "}
+            <span className="font-bold text-foreground">{preview.count}</span>{" "}
             {preview.count === 1 ? "person" : "people"}: {preview.names.join(", ")}
             {preview.count > preview.names.length ? "…" : ""}
           </>

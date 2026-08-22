@@ -2,10 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Badge, Input, Select, Card } from "@/components/primitives";
+import { Check, Plus } from "lucide-react";
+import { Button, Badge, Input, Select, Label, EmptyState } from "@/components/primitives";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Modal } from "@/components/client/Modal";
 import { adminSetSignupStatus, adminAddToShift } from "@/lib/actions/admin-actions";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils";
 
 export interface CheckinEntry {
   signupId: string;
@@ -86,9 +88,8 @@ export function CheckinBoard({
     startTransition(async () => {
       const r = await adminAddToShift(walkupShift, walkupUser);
       if (r.ok) {
-        // Find their new signup and check them in server-side on refresh; the
-        // add confirms them — immediately mark checked in via a second call
-        // once the page refreshes with the new signupId.
+        // The add confirms them; after refresh their row appears and Check in
+        // marks them present.
         router.refresh();
       }
       setWalkupBusy(false);
@@ -99,102 +100,122 @@ export function CheckinBoard({
 
   return (
     <div>
-      <div className="sticky top-24 z-30 -mx-4 mb-4 flex items-center justify-between gap-3 bg-paper/95 px-4 py-2 backdrop-blur">
-        <p className="font-display text-2xl font-extrabold text-ink">
+      {/* Sticks just under the 3.5rem app header (AppShell). */}
+      <div className="sticky top-14 z-20 -mx-4 mb-4 flex items-center justify-between gap-3 bg-background/95 px-4 py-3 backdrop-blur">
+        <p className="font-display text-2xl font-bold text-foreground">
           <span className="text-ted">{checkedIn}</span> of {expected} here
         </p>
         <Button variant="secondary" size="sm" onClick={() => setWalkupOpen(true)}>
-          + Walk-up
+          <Plus data-icon="inline-start" />
+          Walk-up
         </Button>
       </div>
 
       <Input
         placeholder="Find a name…"
+        aria-label="Find a name"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="mb-5"
       />
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         {visible.map((s) => (
-          <section key={s.id}>
-            <h2 className="mb-1 border-t-4 border-ink pt-3 font-display text-lg font-extrabold text-ink">
-              {s.title} <span className="text-sm font-bold text-ink-faint">· {s.timeRange}</span>
-            </h2>
-            <div className="space-y-2">
-              {s.entries.map((e) => {
-                const st = statusOf(e);
-                return (
-                  <Card
-                    key={e.signupId}
-                    className={cn(
-                      "flex items-center justify-between gap-3 rounded-none border-x-0 border-t-0 px-0 py-3.5",
-                      st === "CHECKED_IN" && "bg-transparent",
-                      st === "NO_SHOW" && "opacity-60"
-                    )}
-                  >
-                    <div className="min-w-0">
-                      <p className="font-display text-lg font-extrabold text-ink">{e.name}</p>
-                      <p className="text-xs text-ink-soft">
-                        {e.phone ?? "no phone"} ·{" "}
-                        <button
-                          type="button"
-                          onClick={() => markNoShow(e)}
-                          className="font-semibold text-ink-faint underline"
+          <Card key={s.id}>
+            <CardHeader>
+              <CardTitle>
+                <h2 className="text-base font-bold">{s.title}</h2>
+              </CardTitle>
+              <CardDescription>{s.timeRange}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="divide-y">
+                {s.entries.map((e) => {
+                  const st = statusOf(e);
+                  return (
+                    <li
+                      key={e.signupId}
+                      className={cn(
+                        "flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0",
+                        st === "NO_SHOW" && "opacity-60"
+                      )}
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-base font-semibold text-foreground">{e.name}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {e.phone ?? "no phone"} ·{" "}
+                          <button
+                            type="button"
+                            onClick={() => markNoShow(e)}
+                            className="font-semibold underline underline-offset-2 hover:text-foreground"
+                          >
+                            {st === "NO_SHOW" ? "undo no-show" : "no-show"}
+                          </button>
+                        </p>
+                      </div>
+                      {st === "NO_SHOW" ? (
+                        <Badge tone="red">No-show</Badge>
+                      ) : st === "CHECKED_IN" ? (
+                        <Button
+                          variant="primary"
+                          className="w-28"
+                          aria-pressed="true"
+                          onClick={() => toggle(e)}
                         >
-                          {st === "NO_SHOW" ? "undo no-show" : "no-show"}
-                        </button>
-                      </p>
-                    </div>
-                    {st === "NO_SHOW" ? (
-                      <Badge tone="red">No-show</Badge>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => toggle(e)}
-                        className={cn(
-                          "min-w-32 rounded-full px-5 py-3 font-display text-sm font-extrabold transition-all active:scale-[0.97]",
-                          st === "CHECKED_IN"
-                            ? "bg-ink text-white"
-                            : "border-2 border-ink bg-transparent text-ink hover:bg-ink hover:text-white"
-                        )}
-                      >
-                        {st === "CHECKED_IN" ? "✓ Here" : "Check in"}
-                      </button>
-                    )}
-                  </Card>
-                );
-              })}
-            </div>
-          </section>
+                          <Check data-icon="inline-start" />
+                          Here
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          className="w-28"
+                          aria-pressed="false"
+                          onClick={() => toggle(e)}
+                        >
+                          Check in
+                        </Button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </CardContent>
+          </Card>
         ))}
         {visible.length === 0 ? (
-          <p className="py-10 text-center text-sm text-ink-faint">
-            {q ? "No names match." : "No shifts on this day."}
-          </p>
+          <EmptyState
+            title={q ? "No names match." : "No shifts on this day."}
+            hint={q ? "Try a shorter search, or add them as a walk-up." : undefined}
+          />
         ) : null}
       </div>
 
       <Modal open={walkupOpen} onClose={() => setWalkupOpen(false)} title="Walk-up volunteer">
-        <p className="mb-3 text-sm text-ink-soft">
+        <p className="mb-4 text-sm text-muted-foreground">
           Adds them to a shift and the roster in one go — then tap Check in on their row.
         </p>
-        <div className="space-y-3">
-          <Select value={walkupUser} onChange={(e) => setWalkupUser(e.target.value)}>
-            <option value="">Who showed up?</option>
-            {walkupCandidates.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
-          <Select value={walkupShift} onChange={(e) => setWalkupShift(e.target.value)}>
-            {shifts.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title} · {s.timeRange}
-              </option>
-            ))}
-          </Select>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="walkup-user">Who showed up?</Label>
+            <Select id="walkup-user" value={walkupUser} onChange={(e) => setWalkupUser(e.target.value)}>
+              <option value="">Pick a volunteer…</option>
+              {walkupCandidates.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="walkup-shift">Which shift?</Label>
+            <Select id="walkup-shift" value={walkupShift} onChange={(e) => setWalkupShift(e.target.value)}>
+              {shifts.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.title} · {s.timeRange}
+                </option>
+              ))}
+            </Select>
+          </div>
           <Button className="w-full" disabled={walkupBusy || !walkupUser} onClick={doWalkup}>
             {walkupBusy ? "Adding…" : "Add to shift"}
           </Button>

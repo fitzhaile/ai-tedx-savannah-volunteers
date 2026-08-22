@@ -12,12 +12,19 @@ async function backToRealTime() {
   await prisma.settings.update({ where: { id: 1 }, data: { simulatedNow: null } });
 }
 
+/** The check-in step below leaves one signup CHECKED_IN; undo it so reruns start at "0 of N here". */
+async function resetCheckins() {
+  await prisma.signup.updateMany({ where: { status: "CHECKED_IN" }, data: { status: "CONFIRMED" } });
+}
+
 test.beforeAll(async () => {
   await backToRealTime();
+  await resetCheckins();
 });
 
 test.afterAll(async () => {
   await backToRealTime();
+  await resetCheckins();
   await prisma.signup.deleteMany({ where: { user: { email: { startsWith: "e2e-" } } } });
   await prisma.emailLog.deleteMany({ where: { toEmail: { startsWith: "e2e-" } } });
   await prisma.user.deleteMany({ where: { email: { startsWith: "e2e-" } } });
@@ -89,7 +96,7 @@ test("manager: cancellation feed, custom-time shift, time travel, reminders, che
   // Create a shift with a custom (non-slot) time.
   await page.goto("/admin/shifts/new");
   await page.getByLabel("Shift title").fill("Coffee Runner E2E");
-  await page.getByRole("button", { name: "Custom time" }).click();
+  await page.getByRole("tab", { name: "Custom time" }).click();
   await page.locator('input[name="startsAt"]').fill("2027-05-14T09:30");
   await page.locator('input[name="endsAt"]').fill("2027-05-14T11:30");
   await page.getByLabel("Volunteers needed").fill("3");
@@ -118,7 +125,7 @@ test("manager: cancellation feed, custom-time shift, time travel, reminders, che
   await expect(page.getByText(/0 of \d+ here/)).toBeVisible();
   await page.getByRole("button", { name: "Check in" }).first().click();
   await expect(page.getByText(/1 of \d+ here/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "✓ Here" }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Here" }).first()).toBeVisible();
 
   await page.screenshot({ path: `${SHOT_DIR}/event-day-checkin.png`, fullPage: false });
 

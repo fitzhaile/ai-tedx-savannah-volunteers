@@ -97,7 +97,7 @@ export default async function AdminShiftPage({
 
       <div className="grid items-start gap-6 lg:grid-cols-2">
         <Card>
-          <h2 className="mb-4 text-sm font-extrabold text-ink">Shift details</h2>
+          <h2 className="mb-4 text-sm font-bold text-foreground">Shift details</h2>
           <ShiftForm shift={formValues} slots={slots} boardMembers={boardMembers} />
         </Card>
 
@@ -113,20 +113,20 @@ export default async function AdminShiftPage({
 
           {cancelled.length > 0 ? (
             <Card>
-              <h3 className="mb-2 text-sm font-extrabold text-ink">Cancellation history</h3>
+              <h3 className="mb-2 text-sm font-bold text-foreground">Cancellation history</h3>
               <div className="space-y-2">
                 {cancelled.map((s) => (
-                  <div key={s.id} className="border-b border-line pb-2 text-sm last:border-0">
-                    <p className="font-semibold text-ink">
+                  <div key={s.id} className="border-b border-border pb-2 text-sm last:border-0">
+                    <p className="font-semibold text-foreground">
                       <Link href={`/admin/volunteers/${s.userId}`} className="hover:underline">
                         {s.user.name}
                       </Link>{" "}
-                      <span className="text-xs font-medium text-ink-faint">
+                      <span className="text-xs font-medium text-muted-foreground">
                         {s.cancelledBy === "ADMIN" ? "removed by you" : "cancelled themselves"}
                       </span>
                     </p>
                     {s.cancelNote ? (
-                      <p className="mt-0.5 text-xs text-ink-soft italic">“{s.cancelNote}”</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground italic">“{s.cancelNote}”</p>
                     ) : null}
                   </div>
                 ))}

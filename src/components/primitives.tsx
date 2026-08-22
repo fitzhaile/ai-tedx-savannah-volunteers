@@ -13,7 +13,7 @@ import { Label as ShLabel } from "@/components/ui/label";
  * Pages import from here so the brand mapping lives in one place.
  */
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "inverse";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "inverse" | "link";
 type ButtonSize = "sm" | "md" | "lg";
 
 const variantMap = {
@@ -21,10 +21,12 @@ const variantMap = {
   secondary: { variant: "outline", className: "font-semibold" },
   ghost: { variant: "ghost", className: "font-semibold" },
   danger: { variant: "destructive", className: "font-semibold" },
+  /** Inline text action (no box). */
+  link: { variant: "link", className: "h-auto px-0 font-semibold" },
   inverse: {
     variant: "outline",
     className:
-      "border-white/40 bg-transparent font-semibold text-white hover:border-white hover:bg-white hover:text-ink",
+      "border-white/40 bg-transparent font-semibold text-white hover:border-white hover:bg-white hover:text-foreground",
   },
 } as const;
 

@@ -31,7 +31,7 @@ export default async function BoardAdminPage() {
       />
 
       <Card className="mb-6">
-        <h2 className="mb-3 text-sm font-extrabold text-ink">Add a board member</h2>
+        <h2 className="mb-3 text-sm font-bold text-foreground">Add a board member</h2>
         <AddBoardForm />
       </Card>
 
@@ -48,13 +48,13 @@ export default async function BoardAdminPage() {
                 <span className="flex items-center gap-2">
                   <Link
                     href={`/admin/volunteers/${m.id}`}
-                    className="text-sm font-bold text-ink hover:underline"
+                    className="text-sm font-bold text-foreground hover:underline"
                   >
                     {m.name}
                   </Link>
                   {unread.get(m.id) ? <Badge tone="red">💬 {unread.get(m.id)} new</Badge> : null}
                 </span>
-                <p className="text-xs text-ink-soft">
+                <p className="text-xs text-muted-foreground">
                   {m.email} · owns {m._count.ownedShifts} upcoming shift
                   {m._count.ownedShifts === 1 ? "" : "s"} ·{" "}
                   {m.lastSeenAt

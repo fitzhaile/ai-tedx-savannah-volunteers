@@ -30,7 +30,7 @@ export function ProfileForm({
       </div>
       <div>
         <Label>Email</Label>
-        <p className="text-sm text-ink-soft">{email}</p>
+        <p className="text-sm text-muted-foreground">{email}</p>
         <FieldHint>
           Need to change your email? Reply to any of our emails and we&apos;ll update it.
         </FieldHint>

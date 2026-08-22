@@ -66,12 +66,12 @@ export default async function LandingPage() {
               <span className="inline-flex size-7 items-center justify-center rounded-full bg-ted font-display text-sm font-extrabold text-white">
                 {i + 1}
               </span>
-              <h2 className="mt-3 font-display text-xl font-extrabold text-ink">{s.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{s.body}</p>
+              <h2 className="mt-3 font-display text-xl font-bold text-foreground">{s.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
             </li>
           ))}
         </ol>
-        <footer className="mt-20 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-xs text-ink-faint">
+        <footer className="mt-20 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground">
           <span>TEDxSavannah · This independent TEDx event is operated under license from TED.</span>
           <span>Questions? Reply to any of our emails.</span>
         </footer>

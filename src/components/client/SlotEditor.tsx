@@ -76,8 +76,8 @@ export function SlotEditor({ slots }: { slots: SlotRowData[] }) {
         ) : (
           <Card key={s.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div>
-              <p className="text-sm font-bold text-ink">{s.label}</p>
-              <p className="text-xs text-ink-soft">
+              <p className="text-sm font-bold text-foreground">{s.label}</p>
+              <p className="text-xs text-muted-foreground">
                 {s.when} · used by {s.shiftCount} shift{s.shiftCount === 1 ? "" : "s"}
               </p>
             </div>
@@ -109,7 +109,7 @@ export function SlotEditor({ slots }: { slots: SlotRowData[] }) {
       )}
 
       <Card>
-        <h3 className="mb-3 text-sm font-extrabold text-ink">Add a standard slot</h3>
+        <h3 className="mb-3 text-sm font-bold text-foreground">Add a standard slot</h3>
         <SlotForm onDone={() => router.refresh()} />
         <FieldHint>
           Times are Savannah local time. Editing a slot later does not change shifts already

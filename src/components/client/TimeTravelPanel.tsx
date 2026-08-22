@@ -12,6 +12,7 @@ import {
   simulateInboundEmailAction,
   sendSampleEmailsAction,
 } from "@/lib/actions/dev-actions";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const SAMPLE_KINDS = [
   { value: "MAGIC_LINK", label: "Sign-in link" },
@@ -63,23 +64,23 @@ export function TimeTravelPanel({
   return (
     <div className="space-y-6">
       <Card>
-        <h2 className="mb-1 text-sm font-extrabold text-ink">Jump to a moment in the season</h2>
-        <p className="mb-4 text-sm text-ink-soft">
+        <h2 className="mb-1 text-sm font-bold text-foreground">Jump to a moment in the season</h2>
+        <p className="mb-4 text-sm text-muted-foreground">
           The whole app — shift lists, dashboards, reminders, check-in — follows the simulated
           clock. A banner shows everywhere while it&apos;s active.
         </p>
         <div className="grid gap-2 sm:grid-cols-3">
           {PRESETS.map((p) => (
-            <button
+            <Button
               key={p.value}
-              type="button"
+              variant="secondary"
               disabled={pending}
               onClick={() => jump(p.value)}
-              className="rounded-xl border border-line bg-card p-3 text-left transition-colors hover:border-ted disabled:opacity-50"
+              className="h-auto flex-col items-start gap-0.5 px-3 py-2.5 text-left whitespace-normal"
             >
-              <p className="text-sm font-bold text-ink">{p.label}</p>
-              <p className="text-xs text-ink-soft">{p.hint}</p>
-            </button>
+              <span className="text-sm font-semibold">{p.label}</span>
+              <span className="text-xs font-normal text-muted-foreground">{p.hint}</span>
+            </Button>
           ))}
         </div>
         <div className="mt-4 flex flex-wrap items-end gap-2">
@@ -104,8 +105,8 @@ export function TimeTravelPanel({
       </Card>
 
       <Card>
-        <h2 className="mb-1 text-sm font-extrabold text-ink">Run the scheduler now</h2>
-        <p className="mb-3 text-sm text-ink-soft">
+        <h2 className="mb-1 text-sm font-bold text-foreground">Run the scheduler now</h2>
+        <p className="mb-3 text-sm text-muted-foreground">
           Does exactly what the every-10-minutes cron does at the simulated time: queues any due
           shift reminders (3 days ahead + day-of) and sends queued email within the daily budget.
         </p>
@@ -131,8 +132,8 @@ export function TimeTravelPanel({
       </Card>
 
       <Card>
-        <h2 className="mb-1 text-sm font-extrabold text-ink">Simulate an inbound email</h2>
-        <p className="mb-3 text-sm text-ink-soft">
+        <h2 className="mb-1 text-sm font-bold text-foreground">Simulate an inbound email</h2>
+        <p className="mb-3 text-sm text-muted-foreground">
           Pretend a volunteer emailed you back — the message goes through the exact same
           processing as real Gmail replies and lands in their conversation thread.
         </p>
@@ -164,12 +165,8 @@ export function TimeTravelPanel({
               onChange={(e) => setSimBody(e.target.value)}
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-ink-soft">
-            <input
-              type="checkbox"
-              checked={simReply}
-              onChange={(e) => setSimReply(e.target.checked)}
-            />
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Checkbox checked={simReply} onCheckedChange={(v) => setSimReply(v === true)} />
             Send as a reply to their latest email (tests reply-matching, works even with a
             different From address)
           </label>
@@ -195,15 +192,15 @@ export function TimeTravelPanel({
               Simulate email
             </Button>
             {simResult ? (
-              <p className="text-sm font-semibold text-ink-soft">{simResult}</p>
+              <p className="text-sm font-semibold text-muted-foreground">{simResult}</p>
             ) : null}
           </div>
         </div>
       </Card>
 
       <Card>
-        <h2 className="mb-1 text-sm font-extrabold text-ink">Email templates</h2>
-        <p className="mb-3 text-sm text-ink-soft">
+        <h2 className="mb-1 text-sm font-bold text-foreground">Email templates</h2>
+        <p className="mb-3 text-sm text-muted-foreground">
           Send yourself one real example of every email the app can send (12 emails), so you can
           check how they look in an actual inbox. Each one also appears in Admin → Messages.
         </p>
@@ -252,8 +249,8 @@ export function TimeTravelPanel({
       </Card>
 
       <Card>
-        <h2 className="mb-1 text-sm font-extrabold text-ink">Reset reminder history</h2>
-        <p className="mb-3 text-sm text-ink-soft">
+        <h2 className="mb-1 text-sm font-bold text-foreground">Reset reminder history</h2>
+        <p className="mb-3 text-sm text-muted-foreground">
           Reminders only send once per volunteer per day. If you jump back in time to re-test
           them, clear the history first.
         </p>
@@ -274,12 +271,12 @@ export function TimeTravelPanel({
       </Card>
 
       <Card>
-        <h2 className="mb-1 text-sm font-extrabold text-ink">Demo data</h2>
-        <p className="mb-3 text-sm text-ink-soft">
+        <h2 className="mb-1 text-sm font-bold text-foreground">Demo data</h2>
+        <p className="mb-3 text-sm text-muted-foreground">
           The demo season fills the app with 15 pretend volunteers, two board members, and a
           full shift schedule. Volunteer addresses are plus-tagged variants of your work email
           (like{" "}
-          <code className="rounded bg-line/60 px-1.5 py-0.5 font-mono text-xs">
+          <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
             fitz+v3-tessa-okafor@fitzhaile.com
           </code>
           ), so everything the app &quot;sends them&quot; lands in your own inbox.
