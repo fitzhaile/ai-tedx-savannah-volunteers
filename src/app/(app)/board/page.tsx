@@ -76,7 +76,7 @@ export default async function BoardPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">{fmtShiftWhen(s.startsAt, s.endsAt)}</p>
                   </div>
-                  <Badge tone={tone} className="text-sm">
+                  <Badge tone={tone}>
                     {n}/{s.capacity} staffed
                   </Badge>
                 </div>

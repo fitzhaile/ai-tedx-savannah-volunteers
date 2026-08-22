@@ -18,13 +18,11 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const variantMap = {
   primary: { variant: "default", className: "font-semibold" },
-  // Solid near-black: unmistakably a button on white pages, and distinct from
-  // the red primary (the outline and muted-fill versions hid against cards).
-  secondary: {
-    variant: "outline",
-    className:
-      "border-transparent bg-foreground text-background hover:border-transparent hover:bg-foreground/85 hover:text-background",
-  },
+  // One button color: every action button is solid red. (Outline, muted-fill
+  // and black versions were tried — outline/muted hid against white, and a
+  // second solid color read as a second meaning.) Hierarchy comes from
+  // placement and from ghost/link text for tertiary actions, not from hue.
+  secondary: { variant: "default", className: "font-semibold" },
   // Tertiary actions read as underlined text, not as a washed-out button.
   ghost: {
     variant: "link",
