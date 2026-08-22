@@ -158,7 +158,7 @@ export function CheckinBoard({
                       ) : st === "CHECKED_IN" ? (
                         <Button
                           variant="primary"
-                          className="w-28"
+                          className="w-28 bg-go text-white hover:bg-go/85"
                           aria-pressed="true"
                           onClick={() => toggle(e)}
                         >
