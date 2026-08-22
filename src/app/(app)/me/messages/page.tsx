@@ -15,7 +15,7 @@ export default async function MessagesPage() {
   const [thread, settings] = await Promise.all([getThread(user.id), getSettings()]);
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <PageHeader
         title="Messages"
         subtitle="Your direct line to the volunteer manager."

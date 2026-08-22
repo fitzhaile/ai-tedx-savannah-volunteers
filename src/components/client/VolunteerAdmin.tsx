@@ -49,6 +49,9 @@ export function VolunteerEditForm({
         <Button type="submit" variant="secondary" disabled={pending}>
           {pending ? "Saving…" : "Save"}
         </Button>
+        <Button type="reset" variant="ghost" disabled={pending}>
+          Cancel
+        </Button>
         {state.ok ? <span className="text-sm font-semibold text-go">Saved ✓</span> : null}
       </div>
     </form>

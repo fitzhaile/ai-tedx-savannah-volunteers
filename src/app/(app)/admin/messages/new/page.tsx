@@ -26,7 +26,7 @@ export default async function AdminComposePage({
   ]);
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <PageHeader
         title="New message"
         subtitle="Pick an audience, write it like a normal email, hit send."

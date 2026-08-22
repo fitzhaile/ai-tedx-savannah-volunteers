@@ -36,7 +36,7 @@ export default async function BoardPage() {
   const understaffed = rows.filter((r) => r.confirmed.length < r.capacity).length;
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <PageHeader
         title="My volunteers"
         subtitle={

@@ -61,7 +61,7 @@ export default async function CheckinPage({
   const label = dayShifts[0] ? fmtDay(dayShifts[0].startsAt) : day;
 
   return (
-    <div className="mx-auto max-w-xl">
+    <div>
       <PageHeader title="Check-in" subtitle={label} />
 
       {days.length > 1 ? (
